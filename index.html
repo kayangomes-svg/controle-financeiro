@@ -166,9 +166,10 @@
 
   .month-chart-wrap{position:relative; height:260px;}
 
-  /* ---------- Lançamentos ---------- */
+  /* ---------- Formulários e Tabelas ---------- */
   .form-card{margin-bottom:22px;}
   .form-grid{display:grid; grid-template-columns:1.1fr 1.6fr 1.2fr 1fr 1.2fr 1fr auto; gap:12px; align-items:end;}
+  .form-grid-planejamento{display:grid; grid-template-columns:1.5fr 1.2fr 1.2fr 1fr auto; gap:12px; align-items:end;}
   .field label{display:block; font-size:11.5px; font-weight:600; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:.4px;}
   .field input, .field select{
     width:100%; background:var(--surface-2); border:1px solid var(--border); color:var(--text);
@@ -221,7 +222,7 @@
   @media (max-width:980px){
     .kpi-grid{grid-template-columns:repeat(2,1fr);}
     .dash-grid{grid-template-columns:1fr;}
-    .form-grid{grid-template-columns:1fr 1fr;}
+    .form-grid, .form-grid-planejamento{grid-template-columns:1fr 1fr;}
     .btn-add{grid-column:1/-1; justify-content:center;}
   }
   @media (max-width:560px){
@@ -230,7 +231,7 @@
     .header-inner{padding:14px 16px;}
     main{padding:20px 14px 60px;}
     .tab-btn{padding:8px 14px; font-size:13px;}
-    .form-grid{grid-template-columns:1fr;}
+    .form-grid, .form-grid-planejamento{grid-template-columns:1fr;}
     .page-title{font-size:20px;}
   }
 </style>
@@ -276,6 +277,10 @@
       <button class="tab-btn" data-tab="dashboard" onclick="switchTab('dashboard')">
         <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
         Dashboard
+      </button>
+      <button class="tab-btn" data-tab="planejamento" onclick="switchTab('planejamento')">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Planejamento
       </button>
     </div>
     <div class="header-right">
@@ -323,7 +328,7 @@
         <div class="section-title" style="margin:0;"><span class="dot"></span>Histórico</div>
         <div style="display:flex; align-items:center; gap:14px;">
           <span class="count-pill" id="tx-count">0 lançamentos</span>
-          <button type="button" class="reset-btn" onclick="confirmReset()">Restaurar exemplo</button>
+          <button type="button" class="reset-btn" onclick="confirmReset()">Limpar tudo</button>
         </div>
       </div>
       <div class="table-scroll">
@@ -390,6 +395,69 @@
       </div>
     </div>
   </section>
+
+  <section id="view-planejamento" class="view">
+    <h1 class="page-title">Planejamento</h1>
+    <p class="page-sub">Organize seus gastos obrigatórios (consolidados) e possíveis despesas futuras.</p>
+
+    <div class="card form-card" style="margin-bottom:20px;">
+      <div class="section-title"><span class="dot"></span>Novo Gasto Obrigatório</div>
+      <form id="obrigatorioForm" class="form-grid-planejamento" onsubmit="return handleAddObrigatorio(event)">
+        <div class="field"><label>Descrição</label><input type="text" id="o-desc" placeholder="Ex: Aluguel" required></div>
+        <div class="field"><label>Categoria</label><select id="o-cat" required></select></div>
+        <div class="field"><label>Vencimento / Dia</label><input type="text" id="o-venc" placeholder="Ex: Todo dia 05" required></div>
+        <div class="field"><label>Valor (R$)</label><input type="number" id="o-valor" step="0.01" min="0" placeholder="0,00" required></div>
+        <button type="submit" class="btn-add">
+          <svg viewBox="0 0 24 24" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          Adicionar
+        </button>
+      </form>
+    </div>
+
+    <div class="card table-card" style="margin-bottom:32px;">
+      <div class="table-toolbar">
+        <div class="section-title" style="margin:0;"><span class="dot"></span>Gastos Obrigatórios (Consolidados)</div>
+        <span class="count-pill" id="o-count">0 itens</span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>Descrição</th><th>Categoria</th><th>Vencimento</th><th style="text-align:right;">Valor</th><th></th></tr>
+          </thead>
+          <tbody id="o-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card form-card" style="margin-bottom:20px;">
+      <div class="section-title"><span class="dot" style="background:var(--amber);"></span>Novo Possível Gasto</div>
+      <form id="possivelForm" class="form-grid-planejamento" onsubmit="return handleAddPossivel(event)">
+        <div class="field"><label>Descrição</label><input type="text" id="p-desc" placeholder="Ex: Viagem de férias" required></div>
+        <div class="field"><label>Categoria</label><select id="p-cat" required></select></div>
+        <div class="field"><label>Previsão</label><input type="text" id="p-prev" placeholder="Ex: Julho/2026" required></div>
+        <div class="field"><label>Valor Estimado (R$)</label><input type="number" id="p-valor" step="0.01" min="0" placeholder="0,00" required></div>
+        <button type="submit" class="btn-add" style="background:linear-gradient(135deg,var(--amber),#D97706);">
+          <svg viewBox="0 0 24 24" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          Adicionar
+        </button>
+      </form>
+    </div>
+
+    <div class="card table-card">
+      <div class="table-toolbar">
+        <div class="section-title" style="margin:0;"><span class="dot" style="background:var(--amber);"></span>Possíveis Gastos</div>
+        <span class="count-pill" id="p-count">0 itens</span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>Descrição</th><th>Categoria</th><th>Previsão</th><th style="text-align:right;">Valor Estimado</th><th></th></tr>
+          </thead>
+          <tbody id="p-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
 </main>
 
 <script>
@@ -440,59 +508,8 @@ const CAT_COLORS = {
 };
 
 let transactions = [];
-const DEFAULT_TRANSACTIONS = [
-  {data:"2026-01-03",desc:"Aluguel",cat:"Moradia",tipo:"Despesa",forma:"Transferência",valor:1420.00},
-  {data:"2026-01-05",desc:"Salário mensal",cat:"Salário",tipo:"Receita",forma:"Transferência",valor:5400.00},
-  {data:"2026-01-08",desc:"Condomínio",cat:"Moradia",tipo:"Despesa",forma:"Boleto",valor:380.00},
-  {data:"2026-01-10",desc:"Energia elétrica",cat:"Contas Fixas",tipo:"Despesa",forma:"Débito",valor:190.00},
-  {data:"2026-01-12",desc:"Internet + celular",cat:"Contas Fixas",tipo:"Despesa",forma:"Débito",valor:150.00},
-  {data:"2026-01-15",desc:"Plano de saúde",cat:"Saúde",tipo:"Despesa",forma:"Débito",valor:310.00},
-  {data:"2026-01-17",desc:"Supermercado",cat:"Alimentação",tipo:"Despesa",forma:"Pix",valor:410.00},
-  {data:"2026-01-19",desc:"Combustível",cat:"Transporte",tipo:"Despesa",forma:"Pix",valor:220.00},
-  {data:"2026-01-22",desc:"Cinema",cat:"Lazer",tipo:"Despesa",forma:"Crédito",valor:85.00},
-  {data:"2026-02-03",desc:"Aluguel",cat:"Moradia",tipo:"Despesa",forma:"Transferência",valor:1420.00},
-  {data:"2026-02-05",desc:"Salário mensal",cat:"Salário",tipo:"Receita",forma:"Transferência",valor:5400.00},
-  {data:"2026-02-08",desc:"Condomínio",cat:"Moradia",tipo:"Despesa",forma:"Boleto",valor:380.00},
-  {data:"2026-02-11",desc:"Freelance",cat:"Renda Extra",tipo:"Receita",forma:"Pix",valor:850.00},
-  {data:"2026-02-14",desc:"Plano de saúde",cat:"Saúde",tipo:"Despesa",forma:"Débito",valor:310.00},
-  {data:"2026-02-16",desc:"Supermercado",cat:"Alimentação",tipo:"Despesa",forma:"Pix",valor:365.00},
-  {data:"2026-02-20",desc:"Roupas",cat:"Vestuário",tipo:"Despesa",forma:"Crédito",valor:240.00},
-  {data:"2026-02-24",desc:"Bar com amigos",cat:"Lazer",tipo:"Despesa",forma:"Pix",valor:120.00},
-  {data:"2026-03-03",desc:"Aluguel",cat:"Moradia",tipo:"Despesa",forma:"Transferência",valor:1435.00},
-  {data:"2026-03-05",desc:"Salário mensal",cat:"Salário",tipo:"Receita",forma:"Transferência",valor:5400.00},
-  {data:"2026-03-09",desc:"Mensalidade curso",cat:"Educação",tipo:"Despesa",forma:"Boleto",valor:320.00},
-  {data:"2026-03-12",desc:"Streaming",cat:"Assinaturas",tipo:"Despesa",forma:"Crédito",valor:45.00},
-  {data:"2026-03-15",desc:"Plano de saúde",cat:"Saúde",tipo:"Despesa",forma:"Débito",valor:310.00},
-  {data:"2026-03-18",desc:"Supermercado",cat:"Alimentação",tipo:"Despesa",forma:"Pix",valor:395.00},
-  {data:"2026-03-21",desc:"Uber",cat:"Transporte",tipo:"Despesa",forma:"Débito",valor:95.00},
-  {data:"2026-04-03",desc:"Aluguel",cat:"Moradia",tipo:"Despesa",forma:"Transferência",valor:1435.00},
-  {data:"2026-04-05",desc:"Salário mensal",cat:"Salário",tipo:"Receita",forma:"Transferência",valor:5450.00},
-  {data:"2026-04-10",desc:"Energia elétrica",cat:"Contas Fixas",tipo:"Despesa",forma:"Débito",valor:205.00},
-  {data:"2026-04-14",desc:"Presente",cat:"Outros",tipo:"Despesa",forma:"Transferência",valor:150.00},
-  {data:"2026-04-17",desc:"Supermercado",cat:"Alimentação",tipo:"Despesa",forma:"Pix",valor:420.00},
-  {data:"2026-04-25",desc:"Show",cat:"Lazer",tipo:"Despesa",forma:"Crédito",valor:180.00},
-  {data:"2026-05-03",desc:"Aluguel",cat:"Moradia",tipo:"Despesa",forma:"Transferência",valor:1450.00},
-  {data:"2026-05-05",desc:"Salário mensal",cat:"Salário",tipo:"Receita",forma:"Transferência",valor:5450.00},
-  {data:"2026-05-09",desc:"Freelance",cat:"Renda Extra",tipo:"Receita",forma:"Pix",valor:1100.00},
-  {data:"2026-05-13",desc:"Plano de saúde",cat:"Saúde",tipo:"Despesa",forma:"Débito",valor:315.00},
-  {data:"2026-05-18",desc:"Supermercado",cat:"Alimentação",tipo:"Despesa",forma:"Pix",valor:380.00},
-  {data:"2026-05-22",desc:"Manutenção do carro",cat:"Transporte",tipo:"Despesa",forma:"Transferência",valor:340.00},
-  {data:"2026-06-03",desc:"Aluguel",cat:"Moradia",tipo:"Despesa",forma:"Transferência",valor:1450.00},
-  {data:"2026-06-05",desc:"Salário mensal",cat:"Salário",tipo:"Receita",forma:"Transferência",valor:5450.00},
-  {data:"2026-06-11",desc:"Calçados",cat:"Vestuário",tipo:"Despesa",forma:"Pix",valor:290.00},
-  {data:"2026-06-15",desc:"Plano de saúde",cat:"Saúde",tipo:"Despesa",forma:"Débito",valor:315.00},
-  {data:"2026-06-19",desc:"Supermercado",cat:"Alimentação",tipo:"Despesa",forma:"Pix",valor:405.00},
-  {data:"2026-07-03",desc:"Aluguel",cat:"Moradia",tipo:"Despesa",forma:"Transferência",valor:1460.00},
-  {data:"2026-07-05",desc:"Salário mensal",cat:"Salário",tipo:"Receita",forma:"Transferência",valor:5480.00},
-  {data:"2026-07-12",desc:"Livros",cat:"Educação",tipo:"Despesa",forma:"Boleto",valor:130.00},
-  {data:"2026-07-16",desc:"Supermercado",cat:"Alimentação",tipo:"Despesa",forma:"Pix",valor:370.00},
-  {data:"2026-07-24",desc:"Viagem de fim de semana",cat:"Lazer",tipo:"Despesa",forma:"Crédito",valor:520.00},
-  {data:"2026-08-03",desc:"Aluguel",cat:"Moradia",tipo:"Despesa",forma:"Transferência",valor:1460.00},
-  {data:"2026-08-05",desc:"Salário mensal",cat:"Salário",tipo:"Receita",forma:"Transferência",valor:5480.00},
-  {data:"2026-08-10",desc:"Energia elétrica",cat:"Contas Fixas",tipo:"Despesa",forma:"Débito",valor:210.00},
-  {data:"2026-08-14",desc:"Plano de saúde",cat:"Saúde",tipo:"Despesa",forma:"Débito",valor:315.00},
-  {data:"2026-08-19",desc:"Supermercado",cat:"Alimentação",tipo:"Despesa",forma:"Pix",valor:395.00},
-];
+let obrigatorios = [];
+let possiveis = [];
 
 const BRL = v => v.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
 const MONTH_NAMES = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
@@ -502,8 +519,13 @@ function fmtDate(iso){
 }
 
 const catSelect = document.getElementById('f-cat');
+const oCatSelect = document.getElementById('o-cat');
+const pCatSelect = document.getElementById('p-cat');
+
 ALL_CATS.forEach(c=>{
-  const o = document.createElement('option'); o.value=c; o.textContent=c; catSelect.appendChild(o);
+  catSelect.appendChild(new Option(c, c));
+  oCatSelect.appendChild(new Option(c, c));
+  pCatSelect.appendChild(new Option(c, c));
 });
 document.getElementById('f-data').value = new Date().toISOString().slice(0,10);
 
@@ -511,7 +533,9 @@ function switchTab(name){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
   document.getElementById('view-lancamentos').classList.toggle('active', name==='lancamentos');
   document.getElementById('view-dashboard').classList.toggle('active', name==='dashboard');
+  document.getElementById('view-planejamento').classList.toggle('active', name==='planejamento');
   if(name==='dashboard') renderDashboard();
+  if(name==='planejamento') renderPlanejamento();
 }
 
 async function handleAdd(e){
@@ -538,6 +562,47 @@ async function deleteTx(idx){
   await saveTransactions();
 }
 
+/* Planejamento Handlers */
+async function handleAddObrigatorio(e){
+  e.preventDefault();
+  const desc = document.getElementById('o-desc').value.trim();
+  const cat = document.getElementById('o-cat').value;
+  const venc = document.getElementById('o-venc').value.trim();
+  const valor = parseFloat(document.getElementById('o-valor').value);
+  if(!desc || !venc || !valor || valor<=0) return false;
+  obrigatorios.push({desc, cat, venc, valor});
+  document.getElementById('obrigatorioForm').reset();
+  renderObrigatorios();
+  await saveTransactions();
+  return false;
+}
+
+async function deleteObrigatorio(idx){
+  obrigatorios.splice(idx,1);
+  renderObrigatorios();
+  await saveTransactions();
+}
+
+async function handleAddPossivel(e){
+  e.preventDefault();
+  const desc = document.getElementById('p-desc').value.trim();
+  const cat = document.getElementById('p-cat').value;
+  const prev = document.getElementById('p-prev').value.trim();
+  const valor = parseFloat(document.getElementById('p-valor').value);
+  if(!desc || !prev || !valor || valor<=0) return false;
+  possiveis.push({desc, cat, prev, valor});
+  document.getElementById('possivelForm').reset();
+  renderPossiveis();
+  await saveTransactions();
+  return false;
+}
+
+async function deletePossivel(idx){
+  possiveis.splice(idx,1);
+  renderPossiveis();
+  await saveTransactions();
+}
+
 function renderTable(){
   const tbody = document.getElementById('tx-tbody');
   const sorted = transactions.map((t,i)=>({...t, _i:i})).sort((a,b)=> a.data < b.data ? 1 : -1);
@@ -558,6 +623,45 @@ function renderTable(){
         <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
       </button></td>
     </tr>`).join('');
+}
+
+function renderObrigatorios(){
+  const tbody = document.getElementById('o-tbody');
+  document.getElementById('o-count').textContent = `${obrigatorios.length} itens`;
+  if(obrigatorios.length===0){
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="5">Nenhum gasto obrigatório cadastrado.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = obrigatorios.map((o,i)=>`
+    <tr>
+      <td>${o.desc}</td>
+      <td><span class="cat-chip"><span class="cat-dot" style="background:${CAT_COLORS[o.cat]||'#94A3B8'}"></span>${o.cat}</span></td>
+      <td>${o.venc}</td>
+      <td class="val-cell">${BRL(o.valor)}</td>
+      <td><button class="del-btn" onclick="deleteObrigatorio(${i})" title="Excluir"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button></td>
+    </tr>`).join('');
+}
+
+function renderPossiveis(){
+  const tbody = document.getElementById('p-tbody');
+  document.getElementById('p-count').textContent = `${possiveis.length} itens`;
+  if(possiveis.length===0){
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="5">Nenhum possível gasto cadastrado.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = possiveis.map((p,i)=>`
+    <tr>
+      <td>${p.desc}</td>
+      <td><span class="cat-chip"><span class="cat-dot" style="background:${CAT_COLORS[p.cat]||'#94A3B8'}"></span>${p.cat}</span></td>
+      <td>${p.prev}</td>
+      <td class="val-cell">${BRL(p.valor)}</td>
+      <td><button class="del-btn" onclick="deletePossivel(${i})" title="Excluir"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button></td>
+    </tr>`).join('');
+}
+
+function renderPlanejamento(){
+  renderObrigatorios();
+  renderPossiveis();
 }
 
 function computeStats(){
@@ -652,7 +756,9 @@ function renderDashboard(){
   });
 }
 
-const STORAGE_KEY = 'transactions';
+const STORAGE_KEY_TX = 'transactions';
+const STORAGE_KEY_O = 'obrigatorios';
+const STORAGE_KEY_P = 'possiveis';
 const statusEl = document.getElementById('save-status');
 
 function setStatus(state, label){
@@ -664,17 +770,23 @@ async function loadTransactions(){
   setStatus('saving', 'Carregando…');
   try{
     const userEmail = sessionStorage.getItem('loggedUser') || 'default';
-    const saved = localStorage.getItem(STORAGE_KEY + '_' + userEmail);
-    if(saved) {
-      transactions = JSON.parse(saved);
-    } else {
-      transactions = [...DEFAULT_TRANSACTIONS];
-    }
+    
+    const savedTx = localStorage.getItem(STORAGE_KEY_TX + '_' + userEmail);
+    transactions = savedTx ? JSON.parse(savedTx) : [];
+
+    const savedO = localStorage.getItem(STORAGE_KEY_O + '_' + userEmail);
+    obrigatorios = savedO ? JSON.parse(savedO) : [];
+
+    const savedP = localStorage.getItem(STORAGE_KEY_P + '_' + userEmail);
+    possiveis = savedP ? JSON.parse(savedP) : [];
+
     renderAll();
     setStatus('saved', 'Salvo');
   }catch(e){
     setStatus('error', 'Erro ao carregar');
-    transactions = [...DEFAULT_TRANSACTIONS];
+    transactions = [];
+    obrigatorios = [];
+    possiveis = [];
     renderAll();
   }
 }
@@ -683,7 +795,9 @@ async function saveTransactions(){
   setStatus('saving', 'Salvando…');
   try{
     const userEmail = sessionStorage.getItem('loggedUser') || 'default';
-    localStorage.setItem(STORAGE_KEY + '_' + userEmail, JSON.stringify(transactions));
+    localStorage.setItem(STORAGE_KEY_TX + '_' + userEmail, JSON.stringify(transactions));
+    localStorage.setItem(STORAGE_KEY_O + '_' + userEmail, JSON.stringify(obrigatorios));
+    localStorage.setItem(STORAGE_KEY_P + '_' + userEmail, JSON.stringify(possiveis));
     setTimeout(() => setStatus('saved', 'Salvo'), 400);
   }catch(e){
     setStatus('error', 'Erro ao salvar');
@@ -693,11 +807,14 @@ async function saveTransactions(){
 function renderAll(){
   renderTable();
   renderDashboard();
+  renderPlanejamento();
 }
 
 function confirmReset(){
-  if(confirm("Deseja restaurar os dados de exemplo?")){
-    transactions = [...DEFAULT_TRANSACTIONS];
+  if(confirm("Deseja apagar todos os dados cadastrados?")){
+    transactions = [];
+    obrigatorios = [];
+    possiveis = [];
     renderAll();
     saveTransactions();
   }
