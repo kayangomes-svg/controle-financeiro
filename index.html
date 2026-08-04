@@ -12,7 +12,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --bg: #0B1120;
@@ -96,10 +95,7 @@
   .save-status{
     font-size:11.5px; color:var(--muted); display:flex; align-items:center; gap:6px; white-space:nowrap;
   }
-  .save-status .sdot{width:7px;height:7px;border-radius:50%; background:var(--muted); transition:.2s;}
-  .save-status.saving .sdot{background:var(--amber);}
-  .save-status.saved .sdot{background:var(--emerald);}
-  .save-status.error .sdot{background:var(--rose);}
+  .save-status .sdot{width:7px;height:7px;border-radius:50%; background:var(--emerald);}
 
   main{max-width:1180px; margin:0 auto; padding:28px 24px 80px;}
   .view{display:none; animation:fade .35s ease;}
@@ -127,9 +123,8 @@
   .kpi::before{content:""; position:absolute; top:0; left:0; right:0; height:3px;}
   .kpi.receitas::before{background:var(--emerald);}
   .kpi.despesas::before{background:var(--rose);}
-  .kpi.saldo::before{background:linear-gradient(90deg,var(--indigo),var(--sky)); animation:pulse 2.6s ease-in-out infinite;}
+  .kpi.saldo::before{background:linear-gradient(90deg,var(--indigo),var(--sky));}
   .kpi.poupanca::before{background:var(--amber);}
-  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:.45;}}
   .kpi-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
   .kpi-label{font-size:11.5px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:var(--muted);}
   .kpi-icon{width:30px;height:30px;border-radius:8px; display:flex; align-items:center; justify-content:center;}
@@ -249,15 +244,15 @@
     <form onsubmit="handleLogin(event)">
       <div class="field" style="margin-bottom:16px;">
         <label>E-mail</label>
-        <input type="email" id="login-email" placeholder="financeira1@gmail.com" required>
+        <input type="email" id="login-email" value="financeira1@gmail.com" required>
       </div>
       <div class="field" style="margin-bottom:20px;">
         <label>Senha</label>
-        <input type="password" id="login-senha" placeholder="••••••" required>
+        <input type="password" id="login-senha" value="finan1" required>
       </div>
       <button type="submit" class="btn-add" style="width:100%; justify-content:center; margin-bottom: 12px;">Entrar</button>
     </form>
-    <button type="button" onclick="bypassLogin()" style="width:100%; background:var(--surface-2); border:1px solid var(--border); color:var(--text); padding:10px; border-radius:9px; font-weight:600; font-size:13px; cursor:pointer;">Entrar Instantaneamente (Modo Teste)</button>
+    <button type="button" onclick="bypassLogin()" style="width:100%; background:var(--surface-2); border:1px solid var(--border); color:var(--text); padding:10px; border-radius:9px; font-weight:600; font-size:13px; cursor:pointer;">Entrar Instantaneamente</button>
   </div>
 </div>
 
@@ -284,7 +279,7 @@
       </button>
     </div>
     <div class="header-right">
-      <div id="save-status" class="save-status"></div>
+      <div id="save-status" class="save-status"><span class="sdot"></span>Modo Local Ativo</div>
       <button class="logout-btn" onclick="handleLogout()">Sair</button>
     </div>
   </div>
@@ -398,7 +393,7 @@
 
   <section id="view-planejamento" class="view">
     <h1 class="page-title">Planejamento</h1>
-    <p class="page-sub">Organize seus gastos obrigatórios (consolidados) e possíveis despesas futuras.</p>
+    <p class="page-sub">Organize seus gastos obrigatórios e possíveis despesas futuras.</p>
 
     <div class="card form-card" style="margin-bottom:20px;">
       <div class="section-title"><span class="dot"></span>Novo Gasto Obrigatório</div>
@@ -416,7 +411,7 @@
 
     <div class="card table-card" style="margin-bottom:32px;">
       <div class="table-toolbar">
-        <div class="section-title" style="margin:0;"><span class="dot"></span>Gastos Obrigatórios (Consolidados)</div>
+        <div class="section-title" style="margin:0;"><span class="dot"></span>Gastos Obrigatórios</div>
         <span class="count-pill" id="o-count">0 itens</span>
       </div>
       <div class="table-scroll">
@@ -432,7 +427,7 @@
     <div class="card form-card" style="margin-bottom:20px;">
       <div class="section-title"><span class="dot" style="background:var(--amber);"></span>Novo Possível Gasto</div>
       <form id="possivelForm" class="form-grid-planejamento" onsubmit="return handleAddPossivel(event)">
-        <div class="field"><label>Descrição</label><input type="text" id="p-desc" placeholder="Ex: Viagem de férias" required></div>
+        <div class="field"><label>Descrição</label><input type="text" id="p-desc" placeholder="Ex: Viagem" required></div>
         <div class="field"><label>Categoria</label><select id="p-cat" required></select></div>
         <div class="field"><label>Previsão</label><input type="text" id="p-prev" placeholder="Ex: Julho/2026" required></div>
         <div class="field"><label>Valor Estimado (R$)</label><input type="number" id="p-valor" step="0.01" min="0" placeholder="0,00" required></div>
@@ -461,46 +456,13 @@
 </main>
 
 <script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(err => console.error('SW error:', err));
-  });
-}
-
-const SUPABASE_URL = 'https://huqljqartpxugatyfedp.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1cWxqcWFydHB4dWdhdHlmZWRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU4NTE4MTMsImV4cCI6MjEwMTQyNzgxM30.qtfySZII6LQtZSp4gQGPx5xKRsOjGDu37wKkgcvOTLw';
-
-let supabase = null;
-try {
-  if (window.supabase) {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  }
-} catch(err) {
-  console.warn('Supabase indisponível no momento:', err);
-}
-
-const USERS = [
-  { email: "financeira1@gmail.com", senha: "finan1" },
-  { email: "financeiro2@gmail.com", senha: "finan2" }
-];
-
 function handleLogin(e) {
   e.preventDefault();
-  const emailInput = document.getElementById('login-email').value.trim().toLowerCase();
-  const senhaInput = document.getElementById('login-senha').value.trim();
-
-  const found = USERS.find(u => u.email.toLowerCase() === emailInput && u.senha === senhaInput);
-  if (found) {
-    sessionStorage.setItem('loggedUser', found.email);
-    document.getElementById('login-screen').style.display = 'none';
-    initApp();
-  } else {
-    alert('E-mail ou senha incorretos!\n\nUse:\nfinanceira1@gmail.com / finan1\nou\nfinanceiro2@gmail.com / finan2');
-  }
+  bypassLogin();
 }
 
 function bypassLogin() {
-  sessionStorage.setItem('loggedUser', 'financeira1@gmail.com');
+  sessionStorage.setItem('loggedUser', 'ativo');
   document.getElementById('login-screen').style.display = 'none';
   initApp();
 }
@@ -508,13 +470,10 @@ function bypassLogin() {
 function handleLogout() {
   sessionStorage.removeItem('loggedUser');
   document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('login-email').value = '';
-  document.getElementById('login-senha').value = '';
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  const logged = sessionStorage.getItem('loggedUser');
-  if (logged) {
+  if (sessionStorage.getItem('loggedUser')) {
     document.getElementById('login-screen').style.display = 'none';
     initApp();
   }
@@ -536,6 +495,7 @@ let possiveis = [];
 const BRL = v => v.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
 const MONTH_NAMES = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
 function fmtDate(iso){
+  if(!iso) return '';
   const [y,m,d] = iso.split("-");
   return `${d}/${m}/${y}`;
 }
@@ -545,11 +505,13 @@ const oCatSelect = document.getElementById('o-cat');
 const pCatSelect = document.getElementById('p-cat');
 
 ALL_CATS.forEach(c=>{
-  catSelect.appendChild(new Option(c, c));
-  oCatSelect.appendChild(new Option(c, c));
-  pCatSelect.appendChild(new Option(c, c));
+  if(catSelect) catSelect.appendChild(new Option(c, c));
+  if(oCatSelect) oCatSelect.appendChild(new Option(c, c));
+  if(pCatSelect) pCatSelect.appendChild(new Option(c, c));
 });
-document.getElementById('f-data').value = new Date().toISOString().slice(0,10);
+if(document.getElementById('f-data')) {
+  document.getElementById('f-data').value = new Date().toISOString().slice(0,10);
+}
 
 function switchTab(name){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
@@ -560,7 +522,7 @@ function switchTab(name){
   if(name==='planejamento') renderPlanejamento();
 }
 
-async function handleAdd(e){
+function handleAdd(e){
   e.preventDefault();
   const data = document.getElementById('f-data').value;
   const desc = document.getElementById('f-desc').value.trim();
@@ -574,17 +536,17 @@ async function handleAdd(e){
   document.getElementById('f-data').value = new Date().toISOString().slice(0,10);
   document.getElementById('f-tipo').value = "Despesa";
   renderAll();
-  await saveTransactions();
+  saveData();
   return false;
 }
 
-async function deleteTx(idx){
+function deleteTx(idx){
   transactions.splice(idx,1);
   renderAll();
-  await saveTransactions();
+  saveData();
 }
 
-async function handleAddObrigatorio(e){
+function handleAddObrigatorio(e){
   e.preventDefault();
   const desc = document.getElementById('o-desc').value.trim();
   const cat = document.getElementById('o-cat').value;
@@ -593,18 +555,18 @@ async function handleAddObrigatorio(e){
   if(!desc || !venc || !valor || valor<=0) return false;
   obrigatorios.push({desc, cat, venc, valor});
   document.getElementById('obrigatorioForm').reset();
-  renderObrigatorios();
-  await saveTransactions();
+  renderPlanejamento();
+  saveData();
   return false;
 }
 
-async function deleteObrigatorio(idx){
+function deleteObrigatorio(idx){
   obrigatorios.splice(idx,1);
-  renderObrigatorios();
-  await saveTransactions();
+  renderPlanejamento();
+  saveData();
 }
 
-async function handleAddPossivel(e){
+function handleAddPossivel(e){
   e.preventDefault();
   const desc = document.getElementById('p-desc').value.trim();
   const cat = document.getElementById('p-cat').value;
@@ -613,15 +575,15 @@ async function handleAddPossivel(e){
   if(!desc || !prev || !valor || valor<=0) return false;
   possiveis.push({desc, cat, prev, valor});
   document.getElementById('possivelForm').reset();
-  renderPossiveis();
-  await saveTransactions();
+  renderPlanejamento();
+  saveData();
   return false;
 }
 
-async function deletePossivel(idx){
+function deletePossivel(idx){
   possiveis.splice(idx,1);
-  renderPossiveis();
-  await saveTransactions();
+  renderPlanejamento();
+  saveData();
 }
 
 function renderTable(){
@@ -646,43 +608,36 @@ function renderTable(){
     </tr>`).join('');
 }
 
-function renderObrigatorios(){
-  const tbody = document.getElementById('o-tbody');
+function renderPlanejamento(){
+  const otbody = document.getElementById('o-tbody');
   document.getElementById('o-count').textContent = `${obrigatorios.length} itens`;
   if(obrigatorios.length===0){
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="5">Nenhum gasto obrigatório cadastrado.</td></tr>`;
-    return;
+    otbody.innerHTML = `<tr class="empty-row"><td colspan="5">Nenhum gasto obrigatório cadastrado.</td></tr>`;
+  } else {
+    otbody.innerHTML = obrigatorios.map((o,i)=>`
+      <tr>
+        <td>${o.desc}</td>
+        <td><span class="cat-chip"><span class="cat-dot" style="background:${CAT_COLORS[o.cat]||'#94A3B8'}"></span>${o.cat}</span></td>
+        <td>${o.venc}</td>
+        <td class="val-cell">${BRL(o.valor)}</td>
+        <td><button class="del-btn" onclick="deleteObrigatorio(${i})" title="Excluir"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button></td>
+      </tr>`).join('');
   }
-  tbody.innerHTML = obrigatorios.map((o,i)=>`
-    <tr>
-      <td>${o.desc}</td>
-      <td><span class="cat-chip"><span class="cat-dot" style="background:${CAT_COLORS[o.cat]||'#94A3B8'}"></span>${o.cat}</span></td>
-      <td>${o.venc}</td>
-      <td class="val-cell">${BRL(o.valor)}</td>
-      <td><button class="del-btn" onclick="deleteObrigatorio(${i})" title="Excluir"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button></td>
-    </tr>`).join('');
-}
 
-function renderPossiveis(){
-  const tbody = document.getElementById('p-tbody');
+  const ptbody = document.getElementById('p-tbody');
   document.getElementById('p-count').textContent = `${possiveis.length} itens`;
   if(possiveis.length===0){
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="5">Nenhum possível gasto cadastrado.</td></tr>`;
-    return;
+    ptbody.innerHTML = `<tr class="empty-row"><td colspan="5">Nenhum possível gasto cadastrado.</td></tr>`;
+  } else {
+    ptbody.innerHTML = possiveis.map((p,i)=>`
+      <tr>
+        <td>${p.desc}</td>
+        <td><span class="cat-chip"><span class="cat-dot" style="background:${CAT_COLORS[p.cat]||'#94A3B8'}"></span>${p.cat}</span></td>
+        <td>${p.prev}</td>
+        <td class="val-cell">${BRL(p.valor)}</td>
+        <td><button class="del-btn" onclick="deletePossivel(${i})" title="Excluir"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button></td>
+      </tr>`).join('');
   }
-  tbody.innerHTML = possiveis.map((p,i)=>`
-    <tr>
-      <td>${p.desc}</td>
-      <td><span class="cat-chip"><span class="cat-dot" style="background:${CAT_COLORS[p.cat]||'#94A3B8'}"></span>${p.cat}</span></td>
-      <td>${p.prev}</td>
-      <td class="val-cell">${BRL(p.valor)}</td>
-      <td><button class="del-btn" onclick="deletePossivel(${i})" title="Excluir"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button></td>
-    </tr>`).join('');
-}
-
-function renderPlanejamento(){
-  renderObrigatorios();
-  renderPossiveis();
 }
 
 function computeStats(){
@@ -700,8 +655,8 @@ function computeStats(){
 
   const byMonth = MONTH_NAMES.map((name,i)=>{
     const mm = String(i+1).padStart(2,'0');
-    const rec = transactions.filter(t=>t.tipo==='Receita' && t.data.slice(5,7)===mm).reduce((s,t)=>s+t.valor,0);
-    const des = transactions.filter(t=>t.tipo==='Despesa' && t.data.slice(5,7)===mm).reduce((s,t)=>s+t.valor,0);
+    const rec = transactions.filter(t=>t.tipo==='Receita' && t.data && t.data.slice(5,7)===mm).reduce((s,t)=>s+t.valor,0);
+    const des = transactions.filter(t=>t.tipo==='Despesa' && t.data && t.data.slice(5,7)===mm).reduce((s,t)=>s+t.valor,0);
     return {name, rec, des};
   });
 
@@ -777,87 +732,25 @@ function renderDashboard(){
   });
 }
 
-const statusEl = document.getElementById('save-status');
-
-function setStatus(state, label){
-  statusEl.className = 'save-status ' + state;
-  statusEl.innerHTML = `<span class="sdot"></span>${label}`;
-}
-
-async function loadTransactions(){
-  setStatus('saving', 'Carregando…');
-  const userEmail = sessionStorage.getItem('loggedUser') || 'default';
-  
-  if (!supabase) {
-    const localData = localStorage.getItem('fin_data_' + userEmail);
-    if (localData) {
-      const content = JSON.parse(localData);
-      transactions = content.transactions || [];
-      obrigatorios = content.obrigatorios || [];
-      possiveis = content.possiveis || [];
-    }
-    renderAll();
-    setStatus('saved', 'Modo Local');
-    return;
-  }
-
-  try{
-    const { data, error } = await supabase
-      .from('dados_usuarios')
-      .select('conteudo')
-      .eq('email', userEmail)
-      .maybeSingle();
-
-    if(error) throw error;
-
-    if(data && data.conteudo){
-      const content = typeof data.conteudo === 'string' ? JSON.parse(data.conteudo) : data.conteudo;
-      transactions = content.transactions || [];
-      obrigatorios = content.obrigatorios || [];
-      possiveis = content.possiveis || [];
-    } else {
+function loadData(){
+  const data = localStorage.getItem('controle_financeiro_local');
+  if(data){
+    try {
+      const parsed = JSON.parse(data);
+      transactions = parsed.transactions || [];
+      obrigatorios = parsed.obrigatorios || [];
+      possiveis = parsed.possiveis || [];
+    } catch(e) {
       transactions = [];
       obrigatorios = [];
       possiveis = [];
     }
-
-    renderAll();
-    setStatus('saved', 'Sincronizado');
-  }catch(e){
-    const localData = localStorage.getItem('fin_data_' + userEmail);
-    if (localData) {
-      const content = JSON.parse(localData);
-      transactions = content.transactions || [];
-      obrigatorios = content.obrigatorios || [];
-      possiveis = content.possiveis || [];
-    }
-    renderAll();
-    setStatus('saved', 'Modo Local (Offline)');
   }
 }
 
-async function saveTransactions(){
-  setStatus('saving', 'Salvando…');
-  const userEmail = sessionStorage.getItem('loggedUser') || 'default';
-  const content = { transactions, obrigatorios, possiveis };
-  
-  localStorage.setItem('fin_data_' + userEmail, JSON.stringify(content));
-
-  if (!supabase) {
-    setTimeout(() => setStatus('saved', 'Salvo localmente'), 300);
-    return;
-  }
-
-  try{
-    const { error } = await supabase
-      .from('dados_usuarios')
-      .upsert({ email: userEmail, conteudo: content }, { onConflict: 'email' });
-
-    if(error) throw error;
-    setTimeout(() => setStatus('saved', 'Sincronizado'), 400);
-  }catch(e){
-    setStatus('saved', 'Salvo localmente (Offline)');
-  }
+function saveData(){
+  const data = { transactions, obrigatorios, possiveis };
+  localStorage.setItem('controle_financeiro_local', JSON.stringify(data));
 }
 
 function renderAll(){
@@ -872,12 +765,13 @@ function confirmReset(){
     obrigatorios = [];
     possiveis = [];
     renderAll();
-    saveTransactions();
+    saveData();
   }
 }
 
 function initApp(){
-  loadTransactions();
+  loadData();
+  renderAll();
 }
 </script>
 </body>
