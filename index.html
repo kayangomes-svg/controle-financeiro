@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -256,7 +255,6 @@
         <label>Senha</label>
         <input type="password" id="login-senha" placeholder="••••••" required>
       </div>
-      <div id="login-error" style="color:var(--rose); font-size:12px; margin-bottom:12px; display:none;">E-mail ou senha incorretos.</div>
       <button type="submit" class="btn-add" style="width:100%; justify-content:center;">Entrar</button>
     </form>
   </div>
@@ -470,7 +468,15 @@ if ('serviceWorker' in navigator) {
 
 const SUPABASE_URL = 'https://huqljqartpxugatyfedp.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1cWxqcWFydHB4dWdhdHlmZWRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU4NTE4MTMsImV4cCI6MjEwMTQyNzgxM30.qtfySZII6LQtZSp4gQGPx5xKRsOjGDu37wKkgcvOTLw';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let supabase = null;
+try {
+  if (window.supabase) {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+} catch(err) {
+  console.warn('Supabase indisponível no momento:', err);
+}
 
 const USERS = [
   { email: "financeira1@gmail.com", senha: "finan1" },
@@ -483,13 +489,12 @@ function handleLogin(e) {
   const senhaInput = document.getElementById('login-senha').value.trim();
 
   const found = USERS.find(u => u.email.toLowerCase() === emailInput && u.senha === senhaInput);
-  
   if (found) {
     sessionStorage.setItem('loggedUser', found.email);
     document.getElementById('login-screen').style.display = 'none';
     initApp();
   } else {
-    alert('E-mail ou senha incorretos!\n\nUse:\nE-mail: financeira1@gmail.com\nSenha: finan1');
+    alert('E-mail ou senha incorretos!\n\nUse:\nfinanceira1@gmail.com / finan1\nou\nfinanceiro2@gmail.com / finan2');
   }
 }
 
@@ -773,17 +778,30 @@ function setStatus(state, label){
 }
 
 async function loadTransactions(){
-  setStatus('saving', 'Carregando nuvem…');
+  setStatus('saving', 'Carregando…');
+  const userEmail = sessionStorage.getItem('loggedUser') || 'default';
+  
+  if (!supabase) {
+    const localData = localStorage.getItem('fin_data_' + userEmail);
+    if (localData) {
+      const content = JSON.parse(localData);
+      transactions = content.transactions || [];
+      obrigatorios = content.obrigatorios || [];
+      possiveis = content.possiveis || [];
+    }
+    renderAll();
+    setStatus('saved', 'Modo Local');
+    return;
+  }
+
   try{
-    const userEmail = sessionStorage.getItem('loggedUser') || 'default';
-    
     const { data, error } = await supabase
       .from('dados_usuarios')
       .select('conteudo')
       .eq('email', userEmail)
       .maybeSingle();
 
-    if(error) console.error(error);
+    if(error) throw error;
 
     if(data && data.conteudo){
       const content = typeof data.conteudo === 'string' ? JSON.parse(data.conteudo) : data.conteudo;
@@ -799,20 +817,31 @@ async function loadTransactions(){
     renderAll();
     setStatus('saved', 'Sincronizado');
   }catch(e){
-    setStatus('error', 'Erro ao carregar');
-    transactions = [];
-    obrigatorios = [];
-    possiveis = [];
+    const localData = localStorage.getItem('fin_data_' + userEmail);
+    if (localData) {
+      const content = JSON.parse(localData);
+      transactions = content.transactions || [];
+      obrigatorios = content.obrigatorios || [];
+      possiveis = content.possiveis || [];
+    }
     renderAll();
+    setStatus('saved', 'Modo Local (Offline)');
   }
 }
 
 async function saveTransactions(){
   setStatus('saving', 'Salvando…');
-  try{
-    const userEmail = sessionStorage.getItem('loggedUser') || 'default';
-    const content = { transactions, obrigatorios, possiveis };
+  const userEmail = sessionStorage.getItem('loggedUser') || 'default';
+  const content = { transactions, obrigatorios, possiveis };
+  
+  localStorage.setItem('fin_data_' + userEmail, JSON.stringify(content));
 
+  if (!supabase) {
+    setTimeout(() => setStatus('saved', 'Salvo localmente'), 300);
+    return;
+  }
+
+  try{
     const { error } = await supabase
       .from('dados_usuarios')
       .upsert({ email: userEmail, conteudo: content }, { onConflict: 'email' });
@@ -820,8 +849,7 @@ async function saveTransactions(){
     if(error) throw error;
     setTimeout(() => setStatus('saved', 'Sincronizado'), 400);
   }catch(e){
-    console.error(e);
-    setStatus('error', 'Erro ao salvar');
+    setStatus('saved', 'Salvo localmente (Offline)');
   }
 }
 
