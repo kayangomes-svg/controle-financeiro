@@ -255,8 +255,13 @@
         <label>Senha</label>
         <input type="password" id="login-senha" placeholder="••••••" required>
       </div>
+<<<<<<< HEAD
       <button type="submit" class="btn-add" style="width:100%; justify-content:center;">Entrar</button>
+=======
+      <button type="submit" class="btn-add" style="width:100%; justify-content:center; margin-bottom: 12px;">Entrar</button>
+>>>>>>> ae3ebbe (Atualização)
     </form>
+    <button type="button" onclick="bypassLogin()" style="width:100%; background:var(--surface-2); border:1px solid var(--border); color:var(--text); padding:10px; border-radius:9px; font-weight:600; font-size:13px; cursor:pointer;">Entrar Instantaneamente (Modo Teste)</button>
   </div>
 </div>
 
@@ -496,6 +501,12 @@ function handleLogin(e) {
   } else {
     alert('E-mail ou senha incorretos!\n\nUse:\nfinanceira1@gmail.com / finan1\nou\nfinanceiro2@gmail.com / finan2');
   }
+}
+
+function bypassLogin() {
+  sessionStorage.setItem('loggedUser', 'financeira1@gmail.com');
+  document.getElementById('login-screen').style.display = 'none';
+  initApp();
 }
 
 function handleLogout() {
