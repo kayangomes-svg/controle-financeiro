@@ -479,17 +479,17 @@ const USERS = [
 
 function handleLogin(e) {
   e.preventDefault();
-  const email = document.getElementById('login-email').value.trim();
-  const senha = document.getElementById('login-senha').value.trim();
-  const errorEl = document.getElementById('login-error');
+  const emailInput = document.getElementById('login-email').value.trim().toLowerCase();
+  const senhaInput = document.getElementById('login-senha').value.trim();
 
-  const found = USERS.find(u => u.email === email && u.senha === senha);
+  const found = USERS.find(u => u.email.toLowerCase() === emailInput && u.senha === senhaInput);
+  
   if (found) {
-    sessionStorage.setItem('loggedUser', email);
+    sessionStorage.setItem('loggedUser', found.email);
     document.getElementById('login-screen').style.display = 'none';
     initApp();
   } else {
-    errorEl.style.display = 'block';
+    alert('E-mail ou senha incorretos!\n\nUse:\nE-mail: financeira1@gmail.com\nSenha: finan1');
   }
 }
 
