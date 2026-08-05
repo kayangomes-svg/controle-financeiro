@@ -494,14 +494,14 @@ async function handleAuth(e) {
       errEl.textContent = error.message;
       errEl.style.display = 'block';
     } else {
-      alert('Cadastro realizado! Verifique seu e-mail se necessário ou faça o login.');
+      alert('Cadastro realizado! Faça o login.');
       isSignUp = false;
       toggleAuthMode();
     }
   } else {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-      errEl.textContent = 'E-mail ou senha incorretos.';
+      errEl.textContent = 'Erro: ' + error.message;
       errEl.style.display = 'block';
     } else {
       currentUser = data.user;
@@ -521,6 +521,7 @@ async function checkUserSession() {
   if (session) {
     currentUser = session.user;
     document.getElementById('auth-screen').style.display = 'none';
+    await loadData();
     initApp();
   } else {
     document.getElementById('auth-screen').style.display = 'flex';
@@ -545,7 +546,6 @@ let obrigatorios = [];
 let possiveis = [];
 
 const BRL = v => v.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
-const MONTH_NAMES = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
 function fmtDate(iso){
   if(!iso) return '';
   const [y,m,d] = iso.split("-");
@@ -638,6 +638,14 @@ function deletePossivel(idx){
   saveData();
 }
 
+function confirmReset(){
+  if(confirm('Tem certeza que deseja apagar todos os lançamentos?')) {
+    transactions = [];
+    renderAll();
+    saveData();
+  }
+}
+
 function renderTable(){
   const tbody = document.getElementById('tx-tbody');
   const sorted = transactions.map((t,i)=>({...t, _i:i})).sort((a,b)=> a.data < b.data ? 1 : -1);
@@ -692,99 +700,143 @@ function renderPlanejamento(){
   }
 }
 
-function computeStats(){
-  const receitas = transactions.filter(t=>t.tipo==='Receita').reduce((s,t)=>s+t.valor,0);
-  const despesas = transactions.filter(t=>t.tipo==='Despesa').reduce((s,t)=>s+t.valor,0);
-  const saldo = receitas - despesas;
-  const taxa = receitas>0 ? saldo/receitas : 0;
+let catChartInstance = null;
+let monthChartInstance = null;
 
-  const byCategory = CATS_DESPESA.map(cat=>{
-    const total = transactions.filter(t=>t.tipo==='Despesa' && t.cat===cat).reduce((s,t)=>s+t.valor,0);
-    return {cat, total};
-  }).filter(c=>c.total>0).sort((a,b)=>b.total-a.total);
-
-  const top5 = transactions.filter(t=>t.tipo==='Despesa').sort((a,b)=>b.valor-a.valor).slice(0,5);
-
-  const byMonth = MONTH_NAMES.map((name,i)=>{
-    const mm = String(i+1).padStart(2,'0');
-    const rec = transactions.filter(t=>t.tipo==='Receita' && t.data && t.data.slice(5,7)===mm).reduce((s,t)=>s+t.valor,0);
-    const des = transactions.filter(t=>t.tipo==='Despesa' && t.data && t.data.slice(5,7)===mm).reduce((s,t)=>s+t.valor,0);
-    return {name, rec, des};
-  });
-
-  return {receitas, despesas, saldo, taxa, byCategory, top5, byMonth};
-}
-
-let catChart, monthChart;
 function renderDashboard(){
-  const s = computeStats();
-  document.getElementById('kpi-receitas').textContent = BRL(s.receitas);
-  document.getElementById('kpi-despesas').textContent = BRL(s.despesas);
+  let rec = 0, des = 0;
+  transactions.forEach(t=>{
+    if(t.tipo==='Receita') rec += t.valor;
+    else des += t.valor;
+  });
+  const saldo = rec - des;
+  const taxa = rec > 0 ? Math.max(0, ((rec - des) / rec) * 100) : 0;
+
+  document.getElementById('kpi-receitas').textContent = BRL(rec);
+  document.getElementById('kpi-despesas').textContent = BRL(des);
   const saldoEl = document.getElementById('kpi-saldo');
-  saldoEl.textContent = BRL(s.saldo);
-  saldoEl.classList.toggle('neg', s.saldo<0);
-  document.getElementById('kpi-taxa').textContent = (s.taxa*100).toFixed(1).replace('.',',') + '%';
+  saldoEl.textContent = BRL(saldo);
+  saldoEl.className = `kpi-value num ${saldo<0?'neg':''}`;
+  document.getElementById('kpi-taxa').textContent = taxa.toFixed(1) + '%';
 
-  const maxCat = Math.max(1, ...s.byCategory.map(c=>c.total));
-  document.getElementById('cat-list').innerHTML = s.byCategory.length ? s.byCategory.map(c=>`
-    <div class="cat-row">
-      <span class="cat-dot" style="background:${CAT_COLORS[c.cat]}"></span>
-      <span class="cat-name">${c.cat}</span>
-      <span class="cat-bar-bg"><span class="cat-bar-fill" style="width:${(c.total/maxCat*100).toFixed(1)}%; background:${CAT_COLORS[c.cat]}"></span></span>
-      <span class="cat-val">${BRL(c.total)}</span>
-      <span class="cat-pct">${(c.total/s.despesas*100 || 0).toFixed(0)}%</span>
-    </div>`).join('') : `<p style="color:var(--muted); font-size:13.5px;">Sem despesas registradas ainda.</p>`;
-
-  const rankColors = ["#6366F1","#10B981","#F59E0B","#F43F5E","#0EA5E9"];
-  document.getElementById('top5-list').innerHTML = s.top5.length ? s.top5.map((t,i)=>`
-    <div class="top5-item">
-      <span class="rank" style="background:${rankColors[i]}">${i+1}</span>
-      <div class="top5-info">
-        <div class="top5-desc">${t.desc}</div>
-        <div class="top5-cat">${t.cat}</div>
-      </div>
-      <span class="top5-val">${BRL(t.valor)}</span>
-    </div>`).join('') : `<p style="color:var(--muted); font-size:13.5px;">Sem despesas registradas ainda.</p>`;
-
-  const ctxCat = document.getElementById('catChart').getContext('2d');
-  const catLabels = s.byCategory.map(c=>c.cat);
-  const catData = s.byCategory.map(c=>c.total);
-  const catColors = s.byCategory.map(c=>CAT_COLORS[c.cat]);
-  if(catChart) catChart.destroy();
-  catChart = new Chart(ctxCat, {
-    type:'doughnut',
-    data:{ labels:catLabels, datasets:[{data:catData, backgroundColor:catColors, borderColor:'#131C2E', borderWidth:2}] },
-    options:{
-      responsive:true, maintainAspectRatio:false, cutout:'62%',
-      plugins:{ legend:{ position:'bottom', labels:{ color:'#8592AD', font:{family:'Inter', size:11}, boxWidth:10, padding:12 } },
-        tooltip:{ callbacks:{ label:(ctx)=> ` ${ctx.label}: ${BRL(ctx.parsed)}` } } }
-    }
+  const catSums = {};
+  CATS_DESPESA.forEach(c => catSums[c] = 0);
+  transactions.filter(t=>t.tipo==='Despesa').forEach(t=>{
+    if(catSums[t.cat] !== undefined) catSums[t.cat] += t.valor;
   });
 
+  const sortedCats = Object.entries(catSums).sort((a,b)=>b[1]-a[1]);
+  const catListEl = document.getElementById('cat-list');
+  catListEl.innerHTML = sortedCats.map(([cat, val])=>{
+    const pct = des > 0 ? (val / des) * 100 : 0;
+    return `
+      <div class="cat-row">
+        <span class="cat-dot" style="background:${CAT_COLORS[cat]}"></span>
+        <span class="cat-name">${cat}</span>
+        <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${pct}%; background:${CAT_COLORS[cat]}"></div></div>
+        <span class="cat-val">${BRL(val)}</span>
+        <span class="cat-pct">${pct.toFixed(0)}%</span>
+      </div>`;
+  }).join('');
+
+  const top5 = [...transactions].filter(t=>t.tipo==='Despesa').sort((a,b)=>b.valor-a.valor).slice(0,5);
+  const top5El = document.getElementById('top5-list');
+  if(top5.length===0){
+    top5El.innerHTML = `<div style="text-align:center; color:var(--muted); padding:20px; font-size:13px;">Sem despesas cadastradas.</div>`;
+  } else {
+    top5El.innerHTML = top5.map((t,i)=>`
+      <div class="top5-item">
+        <div class="rank" style="background:${CAT_COLORS[t.cat]||'#6366F1'}">${i+1}</div>
+        <div class="top5-info">
+          <div class="top5-desc">${t.desc}</div>
+          <div class="top5-cat">${t.cat} • ${fmtDate(t.data)}</div>
+        </div>
+        <div class="top5-val" style="color:var(--rose)">-${BRL(t.valor)}</div>
+      </div>`).join('');
+  }
+
+  const monthsMap = {};
+  transactions.forEach(t=>{
+    const mKey = t.data.slice(0,7);
+    if(!monthsMap[mKey]) monthsMap[mKey] = {rec:0, des:0};
+    if(t.tipo==='Receita') monthsMap[mKey].rec += t.valor;
+    else monthsMap[mKey].des += t.valor;
+  });
+
+  const sortedMonths = Object.keys(monthsMap).sort().slice(-6);
+  const labels = sortedMonths.map(m=>{
+    const [y, mm] = m.split("-");
+    return `${['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][parseInt(mm,10)-1]}/${y.slice(2)}`;
+  });
+  const recData = sortedMonths.map(m=>monthsMap[m].rec);
+  const desData = sortedMonths.map(m=>monthsMap[m].des);
+
+  if(monthChartInstance) monthChartInstance.destroy();
   const ctxMonth = document.getElementById('monthChart').getContext('2d');
-  if(monthChart) monthChart.destroy();
-  monthChart = new Chart(ctxMonth, {
-    type:'bar',
-    data:{
-      labels: s.byMonth.map(m=>m.name),
-      datasets:[
-        {label:'Receitas', data:s.byMonth.map(m=>m.rec), backgroundColor:'#10B981', borderRadius:4, maxBarThickness:22},
-        {label:'Despesas', data:s.byMonth.map(m=>m.des), backgroundColor:'#F43F5E', borderRadius:4, maxBarThickness:22},
+  monthChartInstance = new Chart(ctxMonth, {
+    type: 'bar',
+    data: {
+      labels: labels.length ? labels : ['Atual'],
+      datasets: [
+        { label: 'Receitas', data: recData.length ? recData : [0], backgroundColor: '#10B981', borderRadius: 6 },
+        { label: 'Despesas', data: desData.length ? desData : [0], backgroundColor: '#F43F5E', borderRadius: 6 }
       ]
     },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{ position:'bottom', labels:{ color:'#8592AD', font:{family:'Inter', size:11}, boxWidth:10, padding:14 } },
-        tooltip:{ callbacks:{ label:(ctx)=> ` ${ctx.dataset.label}: ${BRL(ctx.parsed.y)}` } } },
-      scales:{
-        x:{ ticks:{ color:'#8592AD', font:{family:'Inter', size:11} }, grid:{ display:false } },
-        y:{ ticks:{ color:'#8592AD', font:{family:'Inter', size:11}, callback:v=>'R$ '+v.toLocaleString('pt-BR') }, grid:{ color:'#23304A' } }
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#E7ECF5', font: { family: 'Inter', size: 12 } } } },
+      scales: {
+        x: { ticks: { color: '#8592AD' }, grid: { display: false } },
+        y: { ticks: { color: '#8592AD' }, grid: { color: 'rgba(35,48,74,0.5)' } }
       }
     }
   });
+
+  if(catChartInstance) catChartInstance.destroy();
+  const activeCats = sortedCats.filter(item => item[1] > 0);
+  const ctxCat = document.getElementById('catChart').getContext('2d');
+  catChartInstance = new Chart(ctxCat, {
+    type: 'doughnut',
+    data: {
+      labels: activeCats.length ? activeCats.map(i=>i[0]) : ['Nenhum gasto'],
+      datasets: [{
+        data: activeCats.length ? activeCats.map(i=>i[1]) : [1],
+        backgroundColor: activeCats.length ? activeCats.map(i=>CAT_COLORS[i[0]]) : ['#23304A'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { color: '#E7ECF5', font: { family: 'Inter', size: 11 }, boxWidth: 12 } } }
+    }
+  });
 }
 
-async function loadData(){
+function renderAll(){
+  renderTable();
+  renderPlanejamento();
+}
+
+async function saveData() {
+  if (!currentUser) return;
+  const statusEl = document.getElementById('save-status');
+  statusEl.innerHTML = '<span class="sdot" style="background:var(--amber)"></span>Salvando...';
+
+  const payload = { transactions, obrigatorios, possiveis };
+  const { error } = await supabase
+    .from('app_dados')
+    .upsert({ user_id: currentUser.id, payload });
+
+  if (error) {
+    statusEl.innerHTML = '<span class="sdot" style="background:var(--rose)"></span>Erro ao salvar';
+  } else {
+    statusEl.innerHTML = '<span class="sdot" style="background:var(--emerald)"></span>Sincronizado';
+  }
+}
+
+async function loadData() {
   if (!currentUser) return;
   const { data, error } = await supabase
     .from('app_dados')
@@ -796,43 +848,11 @@ async function loadData(){
     transactions = data.payload.transactions || [];
     obrigatorios = data.payload.obrigatorios || [];
     possiveis = data.payload.possiveis || [];
-  } else {
-    transactions = [];
-    obrigatorios = [];
-    possiveis = [];
   }
+  renderAll();
 }
 
-async function saveData(){
-  if (!currentUser) return;
-  const payload = { transactions, obrigatorios, possiveis };
-  const { error } = await supabase
-    .from('app_dados')
-    .upsert({ user_id: currentUser.id, payload }, { onConflict: 'user_id' });
-  
-  if (error) {
-    console.error('Erro ao sincronizar:', error.message);
-  }
-}
-
-function renderAll(){
-  renderTable();
-  renderDashboard();
-  renderPlanejamento();
-}
-
-async function confirmReset(){
-  if(confirm("Deseja apagar todos os dados cadastrados?")){
-    transactions = [];
-    obrigatorios = [];
-    possiveis = [];
-    renderAll();
-    await saveData();
-  }
-}
-
-async function initApp(){
-  await loadData();
+function initApp(){
   renderAll();
 }
 </script>
