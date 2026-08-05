@@ -59,7 +59,7 @@
     border-bottom:1px solid var(--border);
   }
   .header-inner{
-    max-width:1180px; margin:0 auto; padding:16px 24px;
+    max-width:1240px; margin:0 auto; padding:16px 24px;
     display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
   }
   .brand{display:flex; align-items:center; gap:10px; font-weight:700; font-size:19px; letter-spacing:.2px;}
@@ -97,7 +97,7 @@
   }
   .save-status .sdot{width:7px;height:7px;border-radius:50%; background:var(--emerald);}
 
-  main{max-width:1180px; margin:0 auto; padding:28px 24px 80px;}
+  main{max-width:1240px; margin:0 auto; padding:28px 24px 80px;}
   .view{display:none; animation:fade .35s ease;}
   .view.active{display:block;}
   @keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
@@ -136,29 +136,35 @@
   }
   .section-title .dot{width:7px;height:7px;border-radius:50%;background:var(--indigo);}
 
-  .kpi-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:26px;}
+  .kpi-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:26px;}
   .kpi{
     position:relative; background:var(--surface); border:1px solid var(--border);
-    border-radius:var(--radius); padding:18px 20px; overflow:hidden;
+    border-radius:var(--radius); padding:18px 16px; overflow:hidden;
   }
   .kpi::before{content:""; position:absolute; top:0; left:0; right:0; height:3px;}
   .kpi.receitas::before{background:var(--emerald);}
   .kpi.despesas::before{background:var(--rose);}
+  .kpi.despesas-pendentes::before{background:var(--amber);}
   .kpi.saldo::before{background:linear-gradient(90deg,var(--indigo),var(--sky));}
   .kpi.poupanca::before{background:var(--amber);}
+  
   .kpi-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;}
-  .kpi-label{font-size:11.5px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:var(--muted);}
-  .kpi-icon{width:30px;height:30px;border-radius:8px; display:flex; align-items:center; justify-content:center;}
-  .kpi-icon svg{width:15px;height:15px; stroke:#fff; fill:none;}
+  .kpi-label{font-size:11px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--muted);}
+  .kpi-icon{width:28px;height:28px;border-radius:8px; display:flex; align-items:center; justify-content:center;}
+  .kpi-icon svg{width:14px;height:14px; stroke:#fff; fill:none;}
+  
   .kpi.receitas .kpi-icon{background:rgba(16,185,129,.18); }
   .kpi.receitas .kpi-icon svg{stroke:var(--emerald);}
   .kpi.despesas .kpi-icon{background:rgba(244,63,94,.18);}
   .kpi.despesas .kpi-icon svg{stroke:var(--rose);}
+  .kpi.despesas-pendentes .kpi-icon{background:rgba(245,158,11,.18);}
+  .kpi.despesas-pendentes .kpi-icon svg{stroke:var(--amber);}
   .kpi.saldo .kpi-icon{background:rgba(99,102,241,.18);}
   .kpi.saldo .kpi-icon svg{stroke:var(--indigo);}
   .kpi.poupanca .kpi-icon{background:rgba(245,158,11,.18);}
   .kpi.poupanca .kpi-icon svg{stroke:var(--amber);}
-  .kpi-value{font-size:25px; font-weight:700; letter-spacing:-.3px;}
+  
+  .kpi-value{font-size:22px; font-weight:700; letter-spacing:-.3px;}
   .kpi-value.neg{color:var(--rose);}
 
   .dash-grid{display:grid; grid-template-columns:1.3fr 1fr; gap:16px; margin-bottom:16px;}
@@ -246,6 +252,7 @@
 
   #error-msg{ color: var(--rose); font-size: 12.5px; margin-top: 10px; text-align: center; display: none; }
 
+  /* Impressão Aba por Aba: apenas a aba ativa (.view.active) será impressa */
   @media print {
     body { background: #fff !important; color: #000 !important; }
     header, .tabs, .form-card, .filter-bar, .action-bar, .del-btn, .logout-btn, #auth-screen { display: none !important; }
@@ -253,17 +260,21 @@
     table { width: 100% !important; border: 1px solid #ccc !important; }
     th { background: #eee !important; color: #000 !important; }
     td { border-bottom: 1px solid #ddd !important; color: #000 !important; }
-    .view { display: block !important; opacity: 1 !important; transform: none !important; }
+    .view { display: none !important; }
+    .view.active { display: block !important; opacity: 1 !important; transform: none !important; }
   }
 
-  @media (max-width:980px){
+  @media (max-width:1100px){
+    .kpi-grid{grid-template-columns:repeat(3,1fr);}
+  }
+  @media (max-width:768px){
     .kpi-grid{grid-template-columns:repeat(2,1fr);}
     .dash-grid{grid-template-columns:1fr;}
     .form-grid, .form-grid-planejamento, .form-grid-cofrinho{grid-template-columns:1fr 1fr;}
     .btn-add{grid-column:1/-1; justify-content:center;}
   }
   @media (max-width:560px){
-    .kpi-grid{grid-template-columns:1fr 1fr;}
+    .kpi-grid{grid-template-columns:1fr;}
     .kpi-value{font-size:20px;}
     .header-inner{padding:14px 16px;}
     main{padding:20px 14px 60px;}
@@ -343,7 +354,7 @@
     <div class="action-bar" style="margin:0; margin-left:auto;">
       <button class="btn-action" onclick="gerarRelatorioPDF()">
         <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-        Gerar Relatório PDF
+        Gerar Relatório da Aba Atual (PDF)
       </button>
     </div>
   </div>
@@ -401,7 +412,7 @@
 
   <section id="view-dashboard" class="view">
     <h1 class="page-title">Dashboard</h1>
-    <p class="page-sub">Visão geral das finanças considerando o mês filtrado (contabiliza despesas pagas).</p>
+    <p class="page-sub">Visão geral das finanças considerando o mês filtrado.</p>
 
     <div class="kpi-grid">
       <div class="kpi receitas">
@@ -415,6 +426,12 @@
           <span class="kpi-icon"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 18l-9.5-9.5-5 5L1 6"/><path d="M17 18h6v-6"/></svg></span>
         </div>
         <div class="kpi-value num" id="kpi-despesas">R$ 0,00</div>
+      </div>
+      <div class="kpi despesas-pendentes">
+        <div class="kpi-top"><span class="kpi-label">Despesas a Pagar</span>
+          <span class="kpi-icon"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+        </div>
+        <div class="kpi-value num" id="kpi-despesas-pendentes">R$ 0,00</div>
       </div>
       <div class="kpi saldo">
         <div class="kpi-top"><span class="kpi-label">Saldo</span>
@@ -617,32 +634,40 @@ async function handleAuth(e) {
       errEl.textContent = 'Erro: ' + error.message;
       errEl.style.display = 'block';
     } else {
-      currentUser = data.user;
-      checkUserSession();
+      // O onAuthStateChange cuidará do redirecionamento e carregamento
     }
   }
 }
 
 async function handleLogout() {
   await sb.auth.signOut();
-  currentUser = null;
-  document.getElementById('auth-screen').style.display = 'flex';
 }
 
-async function checkUserSession() {
-  const { data: { session } } = await sb.auth.getSession();
+function clearLocalState() {
+  transactions = [];
+  obrigatorios = [];
+  possiveis = [];
+  cofrinho = {
+    nome: '',
+    alvo: 0,
+    salario: 0,
+    porcentagem: 0,
+    aportes: []
+  };
+  renderAll();
+}
+
+// Ouve automaticamente o estado de autenticação (Login / Logout / Troca de usuário)
+sb.auth.onAuthStateChange(async (event, session) => {
   if (session) {
     currentUser = session.user;
     document.getElementById('auth-screen').style.display = 'none';
     await loadData();
-    initApp();
   } else {
+    currentUser = null;
+    clearLocalState();
     document.getElementById('auth-screen').style.display = 'flex';
   }
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-  checkUserSession();
 });
 
 const CATS_DESPESA = ["Moradia","Alimentação","Transporte","Saúde","Educação","Lazer","Vestuário","Contas Fixas","Assinaturas","Outros"];
@@ -744,7 +769,6 @@ function handleAdd(e){
   const valor = parseFloat(document.getElementById('f-valor').value);
   if(!data || !desc || !valor || valor<=0) return false;
   
-  // Despesas iniciam como não pagas (false) por padrão, receitas iniciam como pagas (true)
   const pagoDefault = tipo === 'Receita' ? true : false;
 
   transactions.push({data, desc, cat, tipo, forma, valor, pago: pagoDefault});
@@ -956,12 +980,12 @@ let monthChartInstance = null;
 
 function renderDashboard(){
   const filtered = getFilteredTransactions();
-  let rec = 0, des = 0;
+  let rec = 0, des = 0, desPendentes = 0;
   
-  // Considera apenas transações marcadas como pagas/recebidas para o cálculo de fluxo de caixa do dashboard
   filtered.forEach(t=>{
     if(t.tipo==='Receita' && t.pago) rec += t.valor;
     if(t.tipo==='Despesa' && t.pago) des += t.valor;
+    if(t.tipo==='Despesa' && !t.pago) desPendentes += t.valor;
   });
 
   const saldo = rec - des;
@@ -969,6 +993,8 @@ function renderDashboard(){
 
   document.getElementById('kpi-receitas').textContent = BRL(rec);
   document.getElementById('kpi-despesas').textContent = BRL(des);
+  document.getElementById('kpi-despesas-pendentes').textContent = BRL(desPendentes);
+  
   const saldoEl = document.getElementById('kpi-saldo');
   saldoEl.textContent = BRL(saldo);
   saldoEl.className = `kpi-value num ${saldo<0?'neg':''}`;
@@ -1095,6 +1121,8 @@ async function saveData() {
 
 async function loadData() {
   if (!currentUser) return;
+  clearLocalState();
+
   const { data, error } = await sb
     .from('app_dados')
     .select('payload')
@@ -1107,10 +1135,6 @@ async function loadData() {
     possiveis = data.payload.possiveis || [];
     cofrinho = data.payload.cofrinho || { nome: '', alvo: 0, salario: 0, porcentagem: 0, aportes: [] };
   }
-  renderAll();
-}
-
-function initApp(){
   renderAll();
 }
 </script>
