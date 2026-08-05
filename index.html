@@ -21,11 +21,11 @@
     --muted: #8E8E93;
     
     /* Tema Preto & Vermelho Sofisticado (Crimson / Obsidian) */
-    --primary: #E53935;       /* Vermelho Carregado e Sério */
+    --primary: #E53935;       
     --primary-glow: rgba(229, 57, 53, 0.35);
-    --emerald: #30D158;       /* Mantido para receitas */
-    --rose: #FF453A;          /* Despesas */
-    --amber: #FF9F0A;         /* Alertas / Cofrinho */
+    --emerald: #30D158;       
+    --rose: #FF453A;          
+    --amber: #FF9F0A;         
     
     --radius-lg: 20px;
     --radius: 12px;
@@ -68,6 +68,24 @@
     0% { transform: scale(0.95); opacity: 0.8; }
     50% { transform: scale(1.25); opacity: 1; box-shadow: 0 0 12px var(--primary); }
     100% { transform: scale(0.95); opacity: 0.8; }
+  }
+
+  /* Animação do $ flutuante ao clicar em pago */
+  @keyframes floatDollar {
+    0% { opacity: 1; transform: translateY(0) scale(0.8); }
+    100% { opacity: 0; transform: translateY(-45px) scale(1.3); }
+  }
+
+  .floating-dollar {
+    position: absolute;
+    color: var(--emerald);
+    font-weight: 800;
+    font-size: 18px;
+    font-family: var(--font-stack);
+    text-shadow: 0 0 10px rgba(48, 209, 88, 0.6);
+    pointer-events: none;
+    animation: floatDollar 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    z-index: 100;
   }
 
   /* --- AUTH SCREEN --- */
@@ -161,7 +179,7 @@
     animation: pulseDot 2s infinite;
   }
 
-  /* --- MAIN CONTENT & VIEWS COM ANIMAÇÕES --- */
+  /* --- MAIN CONTENT & VIEWS --- */
   main { max-width: 1240px; margin: 0 auto; padding: 36px 24px 80px; }
   .view { display: none; opacity: 0; transform: translateY(10px); transition: opacity 0.4s var(--smooth-ease), transform 0.4s var(--smooth-ease); }
   .view.active { display: block; opacity: 1; transform: translateY(0); animation: fadeInScale 0.4s var(--smooth-ease); }
@@ -202,7 +220,7 @@
   .btn-action svg { width: 15px; height: 15px; stroke: currentColor; fill: none; transition: transform 0.2s; }
   .btn-action:hover svg { transform: scale(1.1); stroke: var(--primary); }
 
-  /* --- LIQUID GLASS CARDS COM HOVER ANIMADO --- */
+  /* --- LIQUID GLASS CARDS --- */
   .card {
     background: var(--surface);
     backdrop-filter: var(--blur);
@@ -229,7 +247,7 @@
     animation: ambientGlow 2.5s infinite ease-in-out;
   }
 
-  /* --- KPIS COM MICRO-INTERAÇÃO --- */
+  /* --- KPIS --- */
   .kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 24px; }
   .kpi {
     position: relative;
@@ -267,10 +285,10 @@
   .kpi.poupanca .kpi-icon { background: rgba(255, 159, 10, 0.18); }
   .kpi.poupanca .kpi-icon svg { stroke: var(--amber); }
   
-  .kpi-value { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; font-variant-numeric: tabular-nums; transition: transform 0.2s; }
+  .kpi-value { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; font-variant-numeric: tabular-nums; }
   .kpi-value.neg { color: var(--rose); }
 
-  /* --- DASHBOARD GRIDS & CHARTS --- */
+  /* --- DASHBOARD --- */
   .dash-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; margin-bottom: 16px; }
   .cat-row { display: flex; align-items: center; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--border); font-size: 13.5px; transition: background 0.2s; }
   .cat-row:hover { background: rgba(255,255,255,0.02); padding-left: 4px; padding-right: 4px; border-radius: 6px; }
@@ -333,9 +351,9 @@
     text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted);
     padding: 14px 18px; border-bottom: 1px solid var(--border); font-weight: 700; background: rgba(0,0,0,0.3);
   }
-  tbody td { padding: 13px 18px; font-size: 13.5px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tbody td { padding: 13px 18px; font-size: 13.5px; border-bottom: 1px solid var(--border); vertical-align: middle; position: relative; }
   tbody tr:last-child td { border-bottom: none; }
-  tbody tr { transition: background 0.2s ease, transform 0.2s; }
+  tbody tr { transition: background 0.2s ease; }
   tbody tr:hover { background: rgba(229, 57, 53, 0.04); }
 
   .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 99px; font-size: 11.5px; font-weight: 700; }
@@ -343,10 +361,10 @@
   .badge.despesa { background: rgba(255, 69, 58, 0.15); color: var(--rose); }
   
   .status-pago-btn {
-    background: transparent; border: 1px solid var(--border); padding: 5px 10px; border-radius: 6px;
+    background: transparent; border: 1px solid var(--border); padding: 5px 12px; border-radius: 6px;
     font-size: 11.5px; font-weight: 600; cursor: pointer; color: var(--muted); transition: all 0.25s var(--smooth-ease);
   }
-  .status-pago-btn.pago { border-color: var(--emerald); color: var(--emerald); background: rgba(48, 209, 88, 0.1); }
+  .status-pago-btn.pago { border-color: var(--emerald); color: var(--emerald); background: rgba(48, 209, 88, 0.1); box-shadow: 0 0 10px rgba(48, 209, 88, 0.15); }
   .status-pago-btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
 
   .cat-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
@@ -362,9 +380,17 @@
   .empty-row td { text-align: center; color: var(--muted); padding: 36px; font-size: 13.5px; }
 
   .table-toolbar {
-    display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; flex-wrap: wrap; gap: 10px;
+    display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; flex-wrap: wrap; gap: 12px;
   }
-  .count-pill { font-size: 12px; color: var(--muted); }
+  .table-stats-pills { display: flex; gap: 10px; align-items: center; font-size: 12px; }
+  .stat-pill {
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border); padding: 4px 10px; border-radius: 99px;
+    color: var(--muted); font-weight: 500; display: flex; align-items: center; gap: 5px;
+  }
+  .stat-pill b { color: var(--text); font-weight: 700; }
+  .stat-pill.pagos-pill b { color: var(--emerald); }
+  .stat-pill.pend-pill b { color: var(--amber); }
+
   .reset-btn {
     background: none; border: 1px solid var(--border); color: var(--muted); font-family: var(--font-stack);
     font-size: 11.5px; font-weight: 600; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: all 0.25s;
@@ -373,7 +399,7 @@
 
   #error-msg { color: var(--rose); font-size: 12.5px; margin-top: 10px; text-align: center; display: none; }
 
-  /* --- PRINT RELATÓRIO --- */
+  /* --- PRINT --- */
   @media print {
     body { background: #fff !important; color: #000 !important; }
     header, .tabs, .form-card, .filter-bar, .action-bar, .del-btn, .logout-btn, #auth-screen { display: none !important; }
@@ -385,7 +411,7 @@
     .view.active { display: block !important; opacity: 1 !important; transform: none !important; }
   }
 
-  /* --- RESPONSIVE BREAKPOINTS --- */
+  /* --- RESPONSIVE --- */
   @media (max-width: 1100px) {
     .kpi-grid { grid-template-columns: repeat(3, 1fr); }
   }
@@ -516,8 +542,12 @@
     <div class="card table-card">
       <div class="table-toolbar">
         <div class="section-title" style="margin:0;"><span class="dot"></span>Histórico</div>
+        <div class="table-stats-pills">
+          <span class="stat-pill" id="tx-total-pill">Total: <b>0</b></span>
+          <span class="stat-pill pagos-pill" id="tx-pagos-pill">Pagos: <b>0</b></span>
+          <span class="stat-pill pend-pill" id="tx-pend-pill">Pendentes: <b>0</b></span>
+        </div>
         <div style="display:flex; align-items:center; gap:14px;">
-          <span class="count-pill" id="tx-count">0 lançamentos</span>
           <button type="button" class="reset-btn" onclick="confirmReset()">Limpar tudo</button>
         </div>
       </div>
@@ -884,8 +914,27 @@ function handleAdd(e){
   return false;
 }
 
-function togglePago(idx){
-  transactions[idx].pago = !transactions[idx].pago;
+function togglePago(idx, event){
+  const agoraPago = !transactions[idx].pago;
+  transactions[idx].pago = agoraPago;
+
+  // Se foi marcado como pago, gera o efeito visual do $ flutuante
+  if (agoraPago && event && event.currentTarget) {
+    const btn = event.currentTarget;
+    const rect = btn.getBoundingClientRect();
+    
+    const dollarEl = document.createElement('div');
+    dollarEl.className = 'floating-dollar';
+    dollarEl.textContent = '+$';
+    dollarEl.style.left = `${rect.left + rect.width / 2 - 8}px`;
+    dollarEl.style.top = `${rect.top}px`;
+    document.body.appendChild(dollarEl);
+
+    setTimeout(() => {
+      dollarEl.remove();
+    }, 850);
+  }
+
   renderAll();
   saveData();
 }
@@ -988,7 +1037,14 @@ function renderTable(){
   const filtered = getFilteredTransactions();
   const sorted = filtered.map((t,i)=>({...t, _origIdx: transactions.indexOf(t)})).sort((a,b)=> a.data < b.data ? 1 : -1);
   
-  document.getElementById('tx-count').textContent = `${sorted.length} lançamento${sorted.length!==1?'s':''}`;
+  const totalCount = sorted.length;
+  const pagosCount = sorted.filter(t => t.pago).length;
+  const pendCount = totalCount - pagosCount;
+
+  document.getElementById('tx-total-pill').innerHTML = `Total: <b>${totalCount}</b>`;
+  document.getElementById('tx-pagos-pill').innerHTML = `Pagos: <b>${pagosCount}</b>`;
+  document.getElementById('tx-pend-pill').innerHTML = `Pendentes: <b>${pendCount}</b>`;
+
   if(sorted.length===0){
     tbody.innerHTML = `<tr class="empty-row"><td colspan="8">Nenhum lançamento encontrado para este filtro.</td></tr>`;
     return;
@@ -1001,7 +1057,7 @@ function renderTable(){
       <td><span class="badge ${t.tipo==='Receita'?'receita':'despesa'}">${t.tipo}</span></td>
       <td>${t.forma}</td>
       <td style="text-align:center;">
-        <button class="status-pago-btn ${t.pago ? 'pago' : ''}" onclick="togglePago(${t._origIdx})">
+        <button class="status-pago-btn ${t.pago ? 'pago' : ''}" onclick="togglePago(${t._origIdx}, event)">
           ${t.pago ? 'Pago' : 'Pendente'}
         </button>
       </td>
