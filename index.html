@@ -463,7 +463,7 @@
 <script>
 const SUPABASE_URL = 'https://huqljqartpxugatyfedp.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh1cWxqcWFydHB4dWdhdHlmZWRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU4NTE4MTMsImV4cCI6MjEwMTQyNzgxM30.qtfySZII6LQtZSp4gQGPx5xKRsOjGDu37wKkgcvOTLw';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let isSignUp = false;
 let currentUser = null;
@@ -485,7 +485,7 @@ async function handleAuth(e) {
   errEl.style.display = 'none';
 
   if (isSignUp) {
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await sb.auth.signUp({ email, password });
     if (error) {
       errEl.textContent = error.message;
       errEl.style.display = 'block';
@@ -495,7 +495,7 @@ async function handleAuth(e) {
       toggleAuthMode();
     }
   } else {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
     if (error) {
       errEl.textContent = 'Erro: ' + error.message;
       errEl.style.display = 'block';
@@ -507,13 +507,13 @@ async function handleAuth(e) {
 }
 
 async function handleLogout() {
-  await supabase.auth.signOut();
+  await sb.auth.signOut();
   currentUser = null;
   document.getElementById('auth-screen').style.display = 'flex';
 }
 
 async function checkUserSession() {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await sb.auth.getSession();
   if (session) {
     currentUser = session.user;
     document.getElementById('auth-screen').style.display = 'none';
@@ -821,7 +821,7 @@ async function saveData() {
   statusEl.innerHTML = '<span class="sdot" style="background:var(--amber)"></span>Salvando...';
 
   const payload = { transactions, obrigatorios, possiveis };
-  const { error } = await supabase
+  const { error } = await sb
     .from('app_dados')
     .upsert({ user_id: currentUser.id, payload });
 
@@ -834,7 +834,7 @@ async function saveData() {
 
 async function loadData() {
   if (!currentUser) return;
-  const { data, error } = await supabase
+  const { data, error } = await sb
     .from('app_dados')
     .select('payload')
     .eq('user_id', currentUser.id)
