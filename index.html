@@ -73,19 +73,19 @@
 
   .tabs{
     display:flex; gap:4px; background:var(--surface); border:1px solid var(--border);
-    padding:4px; border-radius:999px;
+    padding:4px; border-radius:999px; flex-wrap:wrap;
   }
   .tab-btn{
     border:none; background:transparent; color:var(--muted);
-    font-family:'Inter',sans-serif; font-weight:600; font-size:14px;
-    padding:9px 20px; border-radius:999px; cursor:pointer; transition:.2s;
-    display:flex; align-items:center; gap:7px; white-space:nowrap;
+    font-family:'Inter',sans-serif; font-weight:600; font-size:13.5px;
+    padding:8px 16px; border-radius:999px; cursor:pointer; transition:.2s;
+    display:flex; align-items:center; gap:6px; white-space:nowrap;
   }
-  .tab-btn svg{width:15px;height:15px;stroke:currentColor; fill:none;}
+  .tab-btn svg{width:14px;height:14px;stroke:currentColor; fill:none;}
   .tab-btn.active{background:linear-gradient(135deg,var(--indigo),#4338CA); color:#fff; box-shadow:0 4px 14px rgba(99,102,241,.4);}
   .tab-btn:not(.active):hover{color:var(--text); background:var(--surface-2);}
   
-  .header-right { display: flex; align-items: center; gap: 16px; }
+  .header-right { display: flex; align-items: center; gap: 14px; flex-wrap: wrap;}
   .logout-btn {
     background: transparent; border: 1px solid var(--border); color: var(--muted);
     padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: .2s;
@@ -104,6 +104,27 @@
 
   .page-title{font-size:24px; font-weight:700; margin:0 0 4px;}
   .page-sub{color:var(--muted); font-size:13.5px; margin:0 0 24px;}
+
+  .filter-bar{
+    display:flex; align-items:center; gap:12px; margin-bottom:20px; background:var(--surface);
+    border:1px solid var(--border); padding:12px 18px; border-radius:var(--radius); flex-wrap:wrap;
+  }
+  .filter-bar label{font-size:12px; font-weight:600; color:var(--muted); text-transform:uppercase;}
+  .filter-bar select{
+    background:var(--surface-2); border:1px solid var(--border); color:var(--text);
+    padding:8px 12px; border-radius:8px; font-family:'Inter',sans-serif; font-size:13px; outline:none;
+  }
+
+  .action-bar{
+    display:flex; gap:10px; align-items:center; margin-bottom:20px; flex-wrap:wrap;
+  }
+  .btn-action{
+    background:var(--surface); border:1px solid var(--border); color:var(--text);
+    padding:9px 16px; border-radius:9px; font-weight:600; font-size:13px; cursor:pointer;
+    display:flex; align-items:center; gap:6px; transition:.2s;
+  }
+  .btn-action:hover{border-color:var(--indigo); background:var(--surface-2);}
+  .btn-action svg{width:15px;height:15px;stroke:currentColor;fill:none;}
 
   .card{
     background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
@@ -165,6 +186,7 @@
   .form-card{margin-bottom:22px;}
   .form-grid{display:grid; grid-template-columns:1.1fr 1.6fr 1.2fr 1fr 1.2fr 1fr auto; gap:12px; align-items:end;}
   .form-grid-planejamento{display:grid; grid-template-columns:1.5fr 1.2fr 1.2fr 1fr auto; gap:12px; align-items:end;}
+  .form-grid-cofrinho{display:grid; grid-template-columns:1.5fr 1fr 1fr auto; gap:12px; align-items:end;}
   .field label{display:block; font-size:11.5px; font-weight:600; color:var(--muted); margin-bottom:6px; text-transform:uppercase; letter-spacing:.4px;}
   .field input, .field select{
     width:100%; background:var(--surface-2); border:1px solid var(--border); color:var(--text);
@@ -193,6 +215,14 @@
   .badge{display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:999px; font-size:11.5px; font-weight:700;}
   .badge.receita{background:rgba(16,185,129,.15); color:var(--emerald);}
   .badge.despesa{background:rgba(244,63,94,.15); color:var(--rose);}
+  
+  .status-pago-btn{
+    background:transparent; border:1px solid var(--border); padding:5px 10px; border-radius:6px;
+    font-size:11.5px; font-weight:600; cursor:pointer; color:var(--muted); transition:.15s;
+  }
+  .status-pago-btn.pago{border-color:var(--emerald); color:var(--emerald); background:rgba(16,185,129,.1);}
+  .status-pago-btn:hover{filter:brightness(1.1);}
+
   .cat-chip{display:inline-flex; align-items:center; gap:6px; font-size:13px;}
   .cat-chip .cat-dot{width:8px;height:8px;}
   .val-cell{font-variant-numeric:tabular-nums; font-weight:600; text-align:right;}
@@ -216,10 +246,20 @@
 
   #error-msg{ color: var(--rose); font-size: 12.5px; margin-top: 10px; text-align: center; display: none; }
 
+  @media print {
+    body { background: #fff !important; color: #000 !important; }
+    header, .tabs, .form-card, .filter-bar, .action-bar, .del-btn, .logout-btn, #auth-screen { display: none !important; }
+    .card { border: none !important; background: #fff !important; box-shadow: none !important; padding: 0 !important; }
+    table { width: 100% !important; border: 1px solid #ccc !important; }
+    th { background: #eee !important; color: #000 !important; }
+    td { border-bottom: 1px solid #ddd !important; color: #000 !important; }
+    .view { display: block !important; opacity: 1 !important; transform: none !important; }
+  }
+
   @media (max-width:980px){
     .kpi-grid{grid-template-columns:repeat(2,1fr);}
     .dash-grid{grid-template-columns:1fr;}
-    .form-grid, .form-grid-planejamento{grid-template-columns:1fr 1fr;}
+    .form-grid, .form-grid-planejamento, .form-grid-cofrinho{grid-template-columns:1fr 1fr;}
     .btn-add{grid-column:1/-1; justify-content:center;}
   }
   @media (max-width:560px){
@@ -228,7 +268,7 @@
     .header-inner{padding:14px 16px;}
     main{padding:20px 14px 60px;}
     .tab-btn{padding:8px 14px; font-size:13px;}
-    .form-grid, .form-grid-planejamento{grid-template-columns:1fr;}
+    .form-grid, .form-grid-planejamento, .form-grid-cofrinho{grid-template-columns:1fr;}
     .page-title{font-size:20px;}
   }
 </style>
@@ -282,6 +322,10 @@
         <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
         Planejamento
       </button>
+      <button class="tab-btn" data-tab="cofrinho" onclick="switchTab('cofrinho')">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5c-1.5-1-3.5-1-5 0L7 12l3 3-7 3 3-7 3 3 7-7c1-1.5 1-3.5 0-5z"/></svg>
+        Cofrinho
+      </button>
     </div>
     <div class="header-right">
       <div id="save-status" class="save-status"><span class="sdot"></span>Sincronizado</div>
@@ -291,9 +335,22 @@
 </header>
 
 <main>
+  <div class="filter-bar">
+    <label>Mês de Referência:</label>
+    <select id="global-month-filter" onchange="onMonthFilterChange()">
+      <option value="all">Todos os meses</option>
+    </select>
+    <div class="action-bar" style="margin:0; margin-left:auto;">
+      <button class="btn-action" onclick="gerarRelatorioPDF()">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Gerar Relatório PDF
+      </button>
+    </div>
+  </div>
+
   <section id="view-lancamentos" class="view active">
     <h1 class="page-title">Lançamentos</h1>
-    <p class="page-sub">Adicione suas receitas e despesas — sincronizado em todos os seus aparelhos.</p>
+    <p class="page-sub">Adicione suas receitas e despesas e marque o status de pagamento.</p>
 
     <div class="card form-card">
       <div class="section-title"><span class="dot"></span>Novo lançamento</div>
@@ -334,7 +391,7 @@
       <div class="table-scroll">
         <table>
           <thead>
-            <tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Tipo</th><th>Pagamento</th><th style="text-align:right;">Valor</th><th></th></tr>
+            <tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Tipo</th><th>Pagamento</th><th style="text-align:center;">Status</th><th style="text-align:right;">Valor</th><th></th></tr>
           </thead>
           <tbody id="tx-tbody"></tbody>
         </table>
@@ -344,7 +401,7 @@
 
   <section id="view-dashboard" class="view">
     <h1 class="page-title">Dashboard</h1>
-    <p class="page-sub">Visão geral das suas finanças com base nos lançamentos.</p>
+    <p class="page-sub">Visão geral das finanças considerando o mês filtrado.</p>
 
     <div class="kpi-grid">
       <div class="kpi receitas">
@@ -458,6 +515,66 @@
       </div>
     </div>
   </section>
+
+  <section id="view-cofrinho" class="view">
+    <h1 class="page-title">Cofrinho / Metas de Poupança</h1>
+    <p class="page-sub">Calcule quanto guardar do salário mensalmente e registre seus aportes.</p>
+
+    <div class="kpi-grid" style="grid-template-columns:repeat(2,1fr); margin-bottom:20px;">
+      <div class="kpi poupanca">
+        <div class="kpi-top"><span class="kpi-label">Total Guardado no Cofrinho</span>
+          <span class="kpi-icon"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5c-1.5-1-3.5-1-5 0L7 12l3 3-7 3 3-7 3 3 7-7c1-1.5 1-3.5 0-5z"/></svg></span>
+        </div>
+        <div class="kpi-value num" id="cofrinho-total">R$ 0,00</div>
+      </div>
+      <div class="kpi saldo">
+        <div class="kpi-top"><span class="kpi-label">Sugestão de Meta Mensal (Salário)</span>
+          <span class="kpi-icon"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
+        </div>
+        <div class="kpi-value num" id="cofrinho-sugestao">R$ 0,00</div>
+      </div>
+    </div>
+
+    <div class="card form-card" style="margin-bottom:20px;">
+      <div class="section-title"><span class="dot" style="background:var(--amber);"></span>Configurar Meta do Cofrinho</div>
+      <form id="metaForm" class="form-grid-cofrinho" onsubmit="return handleSaveMeta(event)">
+        <div class="field"><label>Objetivo da Meta</label><input type="text" id="m-nome" placeholder="Ex: Reserva de Emergência" required></div>
+        <div class="field"><label>Valor Alvo Total (R$)</label><input type="number" id="m-alvo" step="0.01" min="0" placeholder="0,00" required></div>
+        <div class="field"><label>Salário Base Mensal (R$)</label><input type="number" id="m-salario" step="0.01" min="0" placeholder="0,00" required></div>
+        <div class="field"><label>% a Guardar do Salário</label><input type="number" id="m-porcentagem" step="0.1" min="0" max="100" placeholder="Ex: 20" required></div>
+        <button type="submit" class="btn-add" style="background:linear-gradient(135deg,var(--amber),#D97706); grid-column:1/-1; justify-content:center;">
+          Salvar Configurações da Meta
+        </button>
+      </form>
+    </div>
+
+    <div class="card form-card" style="margin-bottom:20px;">
+      <div class="section-title"><span class="dot" style="background:var(--emerald);"></span>Registrar Aporte no Mês</div>
+      <form id="aporteForm" class="form-grid-planejamento" onsubmit="return handleAddAporte(event)">
+        <div class="field"><label>Mês / Ano</label><input type="text" id="ap-mes" placeholder="Ex: Janeiro/2026" required></div>
+        <div class="field"><label>Valor Guardado (R$)</label><input type="number" id="ap-valor" step="0.01" min="0" placeholder="0,00" required></div>
+        <div class="field"><label>Observação</label><input type="text" id="ap-obs" placeholder="Ex: Sobra do salário"></div>
+        <button type="submit" class="btn-add" style="background:linear-gradient(135deg,var(--emerald),#059669);">
+          Adicionar ao Cofrinho
+        </button>
+      </form>
+    </div>
+
+    <div class="card table-card">
+      <div class="table-toolbar">
+        <div class="section-title" style="margin:0;"><span class="dot" style="background:var(--emerald);"></span>Histórico de Aportes</div>
+        <span class="count-pill" id="ap-count">0 aportes</span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>Mês/Ano</th><th>Observação</th><th style="text-align:right;">Valor Guardado</th><th></th></tr>
+          </thead>
+          <tbody id="ap-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
 </main>
 
 <script>
@@ -540,6 +657,15 @@ const CAT_COLORS = {
 let transactions = [];
 let obrigatorios = [];
 let possiveis = [];
+let cofrinho = {
+  nome: '',
+  alvo: 0,
+  salario: 0,
+  porcentagem: 0,
+  aportes: []
+};
+
+let currentMonthFilter = 'all';
 
 const BRL = v => v.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
 function fmtDate(iso){
@@ -566,8 +692,46 @@ function switchTab(name){
   document.getElementById('view-lancamentos').classList.toggle('active', name==='lancamentos');
   document.getElementById('view-dashboard').classList.toggle('active', name==='dashboard');
   document.getElementById('view-planejamento').classList.toggle('active', name==='planejamento');
+  document.getElementById('view-cofrinho').classList.toggle('active', name==='cofrinho');
   if(name==='dashboard') renderDashboard();
   if(name==='planejamento') renderPlanejamento();
+  if(name==='cofrinho') renderCofrinho();
+}
+
+function updateMonthFilterOptions(){
+  const select = document.getElementById('global-month-filter');
+  const currentVal = select.value;
+  const months = new Set();
+  transactions.forEach(t => {
+    if(t.data) months.add(t.data.slice(0,7));
+  });
+  const sortedMonths = Array.from(months).sort().reverse();
+  
+  let html = '<option value="all">Todos os meses</option>';
+  sortedMonths.forEach(m => {
+    const [y, mm] = m.split("-");
+    const label = `${['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][parseInt(mm,10)-1]}/${y}`;
+    html += `<option value="${m}">${label}</option>`;
+  });
+  select.innerHTML = html;
+  if(sortedMonths.includes(currentVal) || currentVal === 'all') {
+    select.value = currentVal;
+  } else {
+    select.value = 'all';
+  }
+  currentMonthFilter = select.value;
+}
+
+function onMonthFilterChange(){
+  currentMonthFilter = document.getElementById('global-month-filter').value;
+  renderAll();
+  const activeTab = document.querySelector('.tab-btn.active').dataset.tab;
+  if(activeTab === 'dashboard') renderDashboard();
+}
+
+function getFilteredTransactions(){
+  if(currentMonthFilter === 'all') return transactions;
+  return transactions.filter(t => t.data && t.data.startsWith(currentMonthFilter));
 }
 
 function handleAdd(e){
@@ -579,17 +743,26 @@ function handleAdd(e){
   const forma = document.getElementById('f-forma').value;
   const valor = parseFloat(document.getElementById('f-valor').value);
   if(!data || !desc || !valor || valor<=0) return false;
-  transactions.push({data,desc,cat,tipo,forma,valor});
+  
+  transactions.push({data, desc, cat, tipo, forma, valor, pago: true});
   document.getElementById('txForm').reset();
   document.getElementById('f-data').value = new Date().toISOString().slice(0,10);
   document.getElementById('f-tipo').value = "Despesa";
+  updateMonthFilterOptions();
   renderAll();
   saveData();
   return false;
 }
 
+function togglePago(idx){
+  transactions[idx].pago = !transactions[idx].pago;
+  renderAll();
+  saveData();
+}
+
 function deleteTx(idx){
   transactions.splice(idx,1);
+  updateMonthFilterOptions();
   renderAll();
   saveData();
 }
@@ -634,20 +807,60 @@ function deletePossivel(idx){
   saveData();
 }
 
+function handleSaveMeta(e){
+  e.preventDefault();
+  cofrinho.nome = document.getElementById('m-nome').value.trim();
+  cofrinho.alvo = parseFloat(document.getElementById('m-alvo').value) || 0;
+  cofrinho.salario = parseFloat(document.getElementById('m-salario').value) || 0;
+  cofrinho.porcentagem = parseFloat(document.getElementById('m-porcentagem').value) || 0;
+  renderCofrinho();
+  saveData();
+  alert('Metas do cofrinho atualizadas com sucesso!');
+  return false;
+}
+
+function handleAddAporte(e){
+  e.preventDefault();
+  const mes = document.getElementById('ap-mes').value.trim();
+  const valor = parseFloat(document.getElementById('ap-valor').value);
+  const obs = document.getElementById('ap-obs').value.trim();
+  if(!mes || !valor || valor <= 0) return false;
+  
+  if(!cofrinho.aportes) cofrinho.aportes = [];
+  cofrinho.aportes.push({mes, valor, obs});
+  document.getElementById('aporteForm').reset();
+  renderCofrinho();
+  saveData();
+  return false;
+}
+
+function deleteAporte(idx){
+  cofrinho.aportes.splice(idx,1);
+  renderCofrinho();
+  saveData();
+}
+
 function confirmReset(){
   if(confirm('Tem certeza que deseja apagar todos os lançamentos?')) {
     transactions = [];
+    updateMonthFilterOptions();
     renderAll();
     saveData();
   }
 }
 
+function gerarRelatorioPDF(){
+  window.print();
+}
+
 function renderTable(){
   const tbody = document.getElementById('tx-tbody');
-  const sorted = transactions.map((t,i)=>({...t, _i:i})).sort((a,b)=> a.data < b.data ? 1 : -1);
-  document.getElementById('tx-count').textContent = `${transactions.length} lançamento${transactions.length!==1?'s':''}`;
+  const filtered = getFilteredTransactions();
+  const sorted = filtered.map((t,i)=>({...t, _origIdx: transactions.indexOf(t)})).sort((a,b)=> a.data < b.data ? 1 : -1);
+  
+  document.getElementById('tx-count').textContent = `${sorted.length} lançamento${sorted.length!==1?'s':''}`;
   if(sorted.length===0){
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="7">Nenhum lançamento ainda. Adicione o primeiro acima.</td></tr>`;
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="8">Nenhum lançamento encontrado para este filtro.</td></tr>`;
     return;
   }
   tbody.innerHTML = sorted.map(t=>`
@@ -657,8 +870,13 @@ function renderTable(){
       <td><span class="cat-chip"><span class="cat-dot" style="background:${CAT_COLORS[t.cat]||'#94A3B8'}"></span>${t.cat}</span></td>
       <td><span class="badge ${t.tipo==='Receita'?'receita':'despesa'}">${t.tipo}</span></td>
       <td>${t.forma}</td>
+      <td style="text-align:center;">
+        <button class="status-pago-btn ${t.pago ? 'pago' : ''}" onclick="togglePago(${t._origIdx})">
+          ${t.pago ? 'Pago' : 'Pendente'}
+        </button>
+      </td>
       <td class="val-cell" style="color:${t.tipo==='Receita'?'var(--emerald)':'var(--text)'}">${t.tipo==='Despesa'?'-':''}${BRL(t.valor)}</td>
-      <td><button class="del-btn" onclick="deleteTx(${t._i})" title="Excluir">
+      <td><button class="del-btn" onclick="deleteTx(${t._origIdx})" title="Excluir">
         <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
       </button></td>
     </tr>`).join('');
@@ -696,12 +914,47 @@ function renderPlanejamento(){
   }
 }
 
+function renderCofrinho(){
+  if(cofrinho.nome && document.getElementById('m-nome').value === '') {
+    document.getElementById('m-nome').value = cofrinho.nome;
+    document.getElementById('m-alvo').value = cofrinho.alvo;
+    document.getElementById('m-salario').value = cofrinho.salario;
+    document.getElementById('m-porcentagem').value = cofrinho.porcentagem;
+  }
+
+  const sugestaoMensal = (cofrinho.salario * (cofrinho.porcentagem || 0)) / 100;
+  document.getElementById('cofrinho-sugestao').textContent = BRL(sugestaoMensal);
+
+  let totalGuardado = 0;
+  if(cofrinho.aportes && cofrinho.aportes.length > 0) {
+    totalGuardado = cofrinho.aportes.reduce((acc, cur) => acc + cur.valor, 0);
+  }
+  document.getElementById('cofrinho-total').textContent = BRL(totalGuardado);
+
+  const aptBody = document.getElementById('ap-tbody');
+  const aportes = cofrinho.aportes || [];
+  document.getElementById('ap-count').textContent = `${aportes.length} aportes`;
+  if(aportes.length === 0) {
+    aptBody.innerHTML = `<tr class="empty-row"><td colspan="4">Nenhum aporte registrado no cofrinho.</td></tr>`;
+  } else {
+    aptBody.innerHTML = aportes.map((ap, i)=>`
+      <tr>
+        <td>${ap.mes}</td>
+        <td>${ap.obs || '-'}</td>
+        <td class="val-cell" style="color:var(--emerald);">${BRL(ap.valor)}</td>
+        <td><button class="del-btn" onclick="deleteAporte(${i})" title="Excluir"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></button></td>
+      </tr>
+    `).join('');
+  }
+}
+
 let catChartInstance = null;
 let monthChartInstance = null;
 
 function renderDashboard(){
+  const filtered = getFilteredTransactions();
   let rec = 0, des = 0;
-  transactions.forEach(t=>{
+  filtered.forEach(t=>{
     if(t.tipo==='Receita') rec += t.valor;
     else des += t.valor;
   });
@@ -717,7 +970,7 @@ function renderDashboard(){
 
   const catSums = {};
   CATS_DESPESA.forEach(c => catSums[c] = 0);
-  transactions.filter(t=>t.tipo==='Despesa').forEach(t=>{
+  filtered.filter(t=>t.tipo==='Despesa').forEach(t=>{
     if(catSums[t.cat] !== undefined) catSums[t.cat] += t.valor;
   });
 
@@ -735,10 +988,10 @@ function renderDashboard(){
       </div>`;
   }).join('');
 
-  const top5 = [...transactions].filter(t=>t.tipo==='Despesa').sort((a,b)=>b.valor-a.valor).slice(0,5);
+  const top5 = [...filtered].filter(t=>t.tipo==='Despesa').sort((a,b)=>b.valor-a.valor).slice(0,5);
   const top5El = document.getElementById('top5-list');
   if(top5.length===0){
-    top5El.innerHTML = `<div style="text-align:center; color:var(--muted); padding:20px; font-size:13px;">Sem despesas cadastradas.</div>`;
+    top5El.innerHTML = `<div style="text-align:center; color:var(--muted); padding:20px; font-size:13px;">Sem despesas cadastradas para este período.</div>`;
   } else {
     top5El.innerHTML = top5.map((t,i)=>`
       <div class="top5-item">
@@ -811,8 +1064,10 @@ function renderDashboard(){
 }
 
 function renderAll(){
+  updateMonthFilterOptions();
   renderTable();
   renderPlanejamento();
+  renderCofrinho();
 }
 
 async function saveData() {
@@ -820,7 +1075,7 @@ async function saveData() {
   const statusEl = document.getElementById('save-status');
   statusEl.innerHTML = '<span class="sdot" style="background:var(--amber)"></span>Salvando...';
 
-  const payload = { transactions, obrigatorios, possiveis };
+  const payload = { transactions, obrigatorios, possiveis, cofrinho };
   const { error } = await sb
     .from('app_dados')
     .upsert({ user_id: currentUser.id, payload });
@@ -844,6 +1099,7 @@ async function loadData() {
     transactions = data.payload.transactions || [];
     obrigatorios = data.payload.obrigatorios || [];
     possiveis = data.payload.possiveis || [];
+    cofrinho = data.payload.cofrinho || { nome: '', alvo: 0, salario: 0, porcentagem: 0, aportes: [] };
   }
   renderAll();
 }
