@@ -401,7 +401,7 @@
 
   <section id="view-dashboard" class="view">
     <h1 class="page-title">Dashboard</h1>
-    <p class="page-sub">Visão geral das finanças considerando o mês filtrado.</p>
+    <p class="page-sub">Visão geral das finanças considerando o mês filtrado (contabiliza despesas pagas).</p>
 
     <div class="kpi-grid">
       <div class="kpi receitas">
@@ -411,7 +411,7 @@
         <div class="kpi-value num" id="kpi-receitas">R$ 0,00</div>
       </div>
       <div class="kpi despesas">
-        <div class="kpi-top"><span class="kpi-label">Despesas</span>
+        <div class="kpi-top"><span class="kpi-label">Despesas (Pagas)</span>
           <span class="kpi-icon"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 18l-9.5-9.5-5 5L1 6"/><path d="M17 18h6v-6"/></svg></span>
         </div>
         <div class="kpi-value num" id="kpi-despesas">R$ 0,00</div>
@@ -432,7 +432,7 @@
 
     <div class="dash-grid">
       <div class="card">
-        <div class="section-title"><span class="dot"></span>Gastos por categoria</div>
+        <div class="section-title"><span class="dot"></span>Gastos por categoria (Pagos)</div>
         <div id="cat-list"></div>
       </div>
       <div class="card">
@@ -443,7 +443,7 @@
 
     <div class="dash-grid">
       <div class="card">
-        <div class="section-title"><span class="dot"></span>Top 5 maiores gastos</div>
+        <div class="section-title"><span class="dot"></span>Top 5 maiores gastos (Pagos)</div>
         <div id="top5-list"></div>
       </div>
       <div class="card">
@@ -744,7 +744,10 @@ function handleAdd(e){
   const valor = parseFloat(document.getElementById('f-valor').value);
   if(!data || !desc || !valor || valor<=0) return false;
   
-  transactions.push({data, desc, cat, tipo, forma, valor, pago: true});
+  // Despesas iniciam como não pagas (false) por padrão, receitas iniciam como pagas (true)
+  const pagoDefault = tipo === 'Receita' ? true : false;
+
+  transactions.push({data, desc, cat, tipo, forma, valor, pago: pagoDefault});
   document.getElementById('txForm').reset();
   document.getElementById('f-data').value = new Date().toISOString().slice(0,10);
   document.getElementById('f-tipo').value = "Despesa";
@@ -954,10 +957,13 @@ let monthChartInstance = null;
 function renderDashboard(){
   const filtered = getFilteredTransactions();
   let rec = 0, des = 0;
+  
+  // Considera apenas transações marcadas como pagas/recebidas para o cálculo de fluxo de caixa do dashboard
   filtered.forEach(t=>{
-    if(t.tipo==='Receita') rec += t.valor;
-    else des += t.valor;
+    if(t.tipo==='Receita' && t.pago) rec += t.valor;
+    if(t.tipo==='Despesa' && t.pago) des += t.valor;
   });
+
   const saldo = rec - des;
   const taxa = rec > 0 ? Math.max(0, ((rec - des) / rec) * 100) : 0;
 
@@ -970,7 +976,7 @@ function renderDashboard(){
 
   const catSums = {};
   CATS_DESPESA.forEach(c => catSums[c] = 0);
-  filtered.filter(t=>t.tipo==='Despesa').forEach(t=>{
+  filtered.filter(t=>t.tipo==='Despesa' && t.pago).forEach(t=>{
     if(catSums[t.cat] !== undefined) catSums[t.cat] += t.valor;
   });
 
@@ -988,10 +994,10 @@ function renderDashboard(){
       </div>`;
   }).join('');
 
-  const top5 = [...filtered].filter(t=>t.tipo==='Despesa').sort((a,b)=>b.valor-a.valor).slice(0,5);
+  const top5 = [...filtered].filter(t=>t.tipo==='Despesa' && t.pago).sort((a,b)=>b.valor-a.valor).slice(0,5);
   const top5El = document.getElementById('top5-list');
   if(top5.length===0){
-    top5El.innerHTML = `<div style="text-align:center; color:var(--muted); padding:20px; font-size:13px;">Sem despesas cadastradas para este período.</div>`;
+    top5El.innerHTML = `<div style="text-align:center; color:var(--muted); padding:20px; font-size:13px;">Sem despesas pagas cadastradas para este período.</div>`;
   } else {
     top5El.innerHTML = top5.map((t,i)=>`
       <div class="top5-item">
@@ -1008,8 +1014,8 @@ function renderDashboard(){
   transactions.forEach(t=>{
     const mKey = t.data.slice(0,7);
     if(!monthsMap[mKey]) monthsMap[mKey] = {rec:0, des:0};
-    if(t.tipo==='Receita') monthsMap[mKey].rec += t.valor;
-    else monthsMap[mKey].des += t.valor;
+    if(t.tipo==='Receita' && t.pago) monthsMap[mKey].rec += t.valor;
+    if(t.tipo==='Despesa' && t.pago) monthsMap[mKey].des += t.valor;
   });
 
   const sortedMonths = Object.keys(monthsMap).sort().slice(-6);
@@ -1028,7 +1034,7 @@ function renderDashboard(){
       labels: labels.length ? labels : ['Atual'],
       datasets: [
         { label: 'Receitas', data: recData.length ? recData : [0], backgroundColor: '#10B981', borderRadius: 6 },
-        { label: 'Despesas', data: desData.length ? desData : [0], backgroundColor: '#F43F5E', borderRadius: 6 }
+        { label: 'Despesas Pagas', data: desData.length ? desData : [0], backgroundColor: '#F43F5E', borderRadius: 6 }
       ]
     },
     options: {
@@ -1048,7 +1054,7 @@ function renderDashboard(){
   catChartInstance = new Chart(ctxCat, {
     type: 'doughnut',
     data: {
-      labels: activeCats.length ? activeCats.map(i=>i[0]) : ['Nenhum gasto'],
+      labels: activeCats.length ? activeCats.map(i=>i[0]) : ['Nenhum gasto pago'],
       datasets: [{
         data: activeCats.length ? activeCats.map(i=>i[1]) : [1],
         backgroundColor: activeCats.length ? activeCats.map(i=>CAT_COLORS[i[0]]) : ['#23304A'],
