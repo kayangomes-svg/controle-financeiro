@@ -70,10 +70,10 @@
     100% { transform: scale(0.95); opacity: 0.8; }
   }
 
-  /* Animação do $ flutuante ao clicar em pago */
+  /* Animação do $ flutuante ao clicar em pago (com duração estendida) */
   @keyframes floatDollar {
     0% { opacity: 1; transform: translateY(0) scale(0.8); }
-    100% { opacity: 0; transform: translateY(-45px) scale(1.3); }
+    100% { opacity: 0; transform: translateY(-75px) scale(1.3); }
   }
 
   .floating-dollar {
@@ -84,7 +84,7 @@
     font-family: var(--font-stack);
     text-shadow: 0 0 10px rgba(48, 209, 88, 0.6);
     pointer-events: none;
-    animation: floatDollar 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: floatDollar 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     z-index: 100;
   }
 
@@ -566,6 +566,21 @@
     <h1 class="page-title">Dashboard</h1>
     <p class="page-sub">Visão geral inteligente das suas finanças.</p>
 
+    <div class="card" style="margin-bottom: 24px;">
+      <div class="section-title"><span class="dot" style="background:var(--amber);"></span>Velocímetro de Gastos (Limite Máx: R$ 700,00)</div>
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 24px;">
+        <div style="flex: 1; min-width: 260px;">
+          <div id="alerta-limite-box" style="padding: 12px 16px; border-radius: 10px; margin-bottom: 14px; display: none; font-size: 13.5px; font-weight: 600;"></div>
+          <p style="color: var(--muted); font-size: 13px; margin: 0 0 6px;">Consumo atual em relação ao teto:</p>
+          <div style="font-size: 32px; font-weight: 800; letter-spacing: -1px;" id="velocimetro-pct">0%</div>
+          <div style="font-size: 13.5px; color: var(--text); margin-top: 6px;" id="velocimetro-detalhe">Despesas pagas: R$ 0,00 / R$ 700,00</div>
+        </div>
+        <div style="width: 240px; height: 130px; position: relative;">
+          <canvas id="gaugeChart"></canvas>
+        </div>
+      </div>
+    </div>
+
     <div class="kpi-grid">
       <div class="kpi receitas">
         <div class="kpi-top"><span class="kpi-label">Receitas</span>
@@ -918,7 +933,6 @@ function togglePago(idx, event){
   const agoraPago = !transactions[idx].pago;
   transactions[idx].pago = agoraPago;
 
-  // Se foi marcado como pago, gera o efeito visual do $ flutuante
   if (agoraPago && event && event.currentTarget) {
     const btn = event.currentTarget;
     const rect = btn.getBoundingClientRect();
@@ -932,7 +946,7 @@ function togglePago(idx, event){
 
     setTimeout(() => {
       dollarEl.remove();
-    }, 850);
+    }, 1400);
   }
 
   renderAll();
@@ -1136,6 +1150,68 @@ function renderCofrinho(){
 
 let catChartInstance = null;
 let monthChartInstance = null;
+let gaugeChartInstance = null;
+
+function renderVelocimetro(despesasPagas) {
+  const limite = 700;
+  const pctDisplay = ((despesasPagas / limite) * 100).toFixed(1);
+  
+  document.getElementById('velocimetro-pct').textContent = pctDisplay + '%';
+  document.getElementById('velocimetro-detalhe').textContent = `Despesas pagas: ${BRL(despesasPagas)} / ${BRL(limite)}`;
+  
+  const alertaBox = document.getElementById('alerta-limite-box');
+  if (despesasPagas >= limite) {
+    alertaBox.style.display = 'block';
+    alertaBox.style.background = 'rgba(255, 69, 58, 0.2)';
+    alertaBox.style.border = '1px solid var(--rose)';
+    alertaBox.style.color = 'var(--rose)';
+    alertaBox.innerHTML = `⚠️ <b>ALERTA CRÍTICO:</b> Você atingiu ou ultrapassou o limite de R$ 700,00! (Total gasto: ${BRL(despesasPagas)})`;
+  } else if (despesasPagas >= limite * 0.8) {
+    alertaBox.style.display = 'block';
+    alertaBox.style.background = 'rgba(255, 159, 10, 0.2)';
+    alertaBox.style.border = '1px solid var(--amber)';
+    alertaBox.style.color = 'var(--amber)';
+    alertaBox.innerHTML = `⚡ <b>ATENÇÃO:</b> Você está próximo de atingir o limite de R$ 700,00 (${pctDisplay}% utilizado).`;
+  } else {
+    alertaBox.style.display = 'none';
+  }
+
+  // Gráfico do Velocímetro (Semi-círculo)
+  if (gaugeChartInstance) gaugeChartInstance.destroy();
+  const ctx = document.getElementById('gaugeChart').getContext('2d');
+  
+  const restante = Math.max(0, limite - despesasPagas);
+  const valorGrafico = Math.min(despesasPagas, limite);
+  const corBarra = despesasPagas >= limite ? '#FF453A' : (despesasPagas >= limite * 0.8 ? '#FF9F0A' : '#30D158');
+
+  gaugeChartInstance = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Gastos', 'Restante'],
+      datasets: [{
+        data: [valorGrafico, restante],
+        backgroundColor: [corBarra, 'rgba(255,255,255,0.06)'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      circumference: 180,
+      rotation: -90,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return context.label + ': ' + BRL(context.raw);
+            }
+          }
+        }
+      }
+    }
+  });
+}
 
 function renderDashboard(){
   const filtered = getFilteredTransactions();
@@ -1158,6 +1234,9 @@ function renderDashboard(){
   saldoEl.textContent = BRL(saldo);
   saldoEl.className = `kpi-value num ${saldo<0?'neg':''}`;
   document.getElementById('kpi-taxa').textContent = taxa.toFixed(1) + '%';
+
+  // Renderizar Velocímetro de Limite (R$ 700)
+  renderVelocimetro(des);
 
   const catSums = {};
   CATS_DESPESA.forEach(c => catSums[c] = 0);
