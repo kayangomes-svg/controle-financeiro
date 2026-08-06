@@ -20,7 +20,6 @@
     --text: #F4F4F6;
     --muted: #8E8E93;
     
-    /* Tema Preto & Vermelho Sofisticado (Crimson / Obsidian) */
     --primary: #E53935;       
     --primary-glow: rgba(229, 57, 53, 0.35);
     --emerald: #30D158;       
@@ -53,7 +52,6 @@
   h1, h2, h3, h4 { font-weight: 700; letter-spacing: -0.5px; }
   ::selection { background: rgba(229, 57, 53, 0.4); color: #fff; }
 
-  /* --- ANIMAÇÕES GLOBAIS --- */
   @keyframes fadeInScale {
     from { opacity: 0; transform: translateY(12px) scale(0.98); }
     to { opacity: 1; transform: translateY(0) scale(1); }
@@ -70,7 +68,6 @@
     100% { transform: scale(0.95); opacity: 0.8; }
   }
 
-  /* Animação do $ flutuante ao clicar em pago (com duração estendida) */
   @keyframes floatDollar {
     0% { opacity: 1; transform: translateY(0) scale(0.8); }
     100% { opacity: 0; transform: translateY(-75px) scale(1.3); }
@@ -88,7 +85,6 @@
     z-index: 100;
   }
 
-  /* --- AUTH SCREEN --- */
   #auth-screen {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: var(--bg); z-index: 1000;
@@ -112,7 +108,6 @@
   .auth-toggle span { color: var(--primary); cursor: pointer; font-weight: 600; transition: opacity 0.2s; }
   .auth-toggle span:hover { opacity: 0.8; }
 
-  /* --- HEADER & GLASS NAV --- */
   header {
     position: sticky; top: 0; z-index: 50;
     background: rgba(7, 7, 9, 0.7);
@@ -179,7 +174,6 @@
     animation: pulseDot 2s infinite;
   }
 
-  /* --- MAIN CONTENT & VIEWS --- */
   main { max-width: 1240px; margin: 0 auto; padding: 36px 24px 80px; }
   .view { display: none; opacity: 0; transform: translateY(10px); transition: opacity 0.4s var(--smooth-ease), transform 0.4s var(--smooth-ease); }
   .view.active { display: block; opacity: 1; transform: translateY(0); animation: fadeInScale 0.4s var(--smooth-ease); }
@@ -187,7 +181,6 @@
   .page-title { font-size: 30px; font-weight: 800; margin: 0 0 4px; letter-spacing: -0.8px; }
   .page-sub { color: var(--muted); font-size: 14.5px; margin: 0 0 28px; font-weight: 400; }
 
-  /* --- FILTER & ACTIONS --- */
   .filter-bar {
     display: flex; align-items: center; gap: 14px; margin-bottom: 24px;
     background: var(--surface);
@@ -220,7 +213,6 @@
   .btn-action svg { width: 15px; height: 15px; stroke: currentColor; fill: none; transition: transform 0.2s; }
   .btn-action:hover svg { transform: scale(1.1); stroke: var(--primary); }
 
-  /* --- LIQUID GLASS CARDS --- */
   .card {
     background: var(--surface);
     backdrop-filter: var(--blur);
@@ -247,7 +239,6 @@
     animation: ambientGlow 2.5s infinite ease-in-out;
   }
 
-  /* --- KPIS --- */
   .kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 24px; }
   .kpi {
     position: relative;
@@ -288,7 +279,6 @@
   .kpi-value { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; font-variant-numeric: tabular-nums; }
   .kpi-value.neg { color: var(--rose); }
 
-  /* --- DASHBOARD --- */
   .dash-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; margin-bottom: 16px; }
   .cat-row { display: flex; align-items: center; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--border); font-size: 13.5px; transition: background 0.2s; }
   .cat-row:hover { background: rgba(255,255,255,0.02); padding-left: 4px; padding-right: 4px; border-radius: 6px; }
@@ -312,7 +302,6 @@
   .top5-cat { font-size: 11.5px; color: var(--muted); }
   .top5-val { font-weight: 700; font-size: 13.5px; font-variant-numeric: tabular-nums; }
 
-  /* --- FORMS & INPUTS --- */
   .form-card { margin-bottom: 22px; }
   .form-grid { display: grid; grid-template-columns: 1.1fr 1.6fr 1.2fr 1fr 1.2fr 1fr auto; gap: 12px; align-items: end; }
   .form-grid-planejamento { display: grid; grid-template-columns: 1.5fr 1.2fr 1.2fr 1fr auto; gap: 12px; align-items: end; }
@@ -343,7 +332,6 @@
   .btn-add svg { width: 15px; height: 15px; stroke: #fff; fill: none; transition: transform 0.3s; }
   .btn-add:hover svg { transform: rotate(90deg); }
 
-  /* --- TABLES --- */
   .table-card { padding: 0; overflow: hidden; }
   .table-scroll { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; min-width: 720px; }
@@ -399,7 +387,6 @@
 
   #error-msg { color: var(--rose); font-size: 12.5px; margin-top: 10px; text-align: center; display: none; }
 
-  /* --- PRINT --- */
   @media print {
     body { background: #fff !important; color: #000 !important; }
     header, .tabs, .form-card, .filter-bar, .action-bar, .del-btn, .logout-btn, #auth-screen { display: none !important; }
@@ -411,7 +398,6 @@
     .view.active { display: block !important; opacity: 1 !important; transform: none !important; }
   }
 
-  /* --- RESPONSIVE --- */
   @media (max-width: 1100px) {
     .kpi-grid { grid-template-columns: repeat(3, 1fr); }
   }
@@ -567,13 +553,13 @@
     <p class="page-sub">Visão geral inteligente das suas finanças.</p>
 
     <div class="card" style="margin-bottom: 24px;">
-      <div class="section-title"><span class="dot" style="background:var(--amber);"></span>Velocímetro de Gastos (Limite Máx: R$ 700,00)</div>
+      <div class="section-title"><span class="dot" style="background:var(--emerald);"></span>Velocímetro de Saldo Mínimo (Alerta se Saldo &lt; R$ 700,00)</div>
       <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 24px;">
         <div style="flex: 1; min-width: 260px;">
           <div id="alerta-limite-box" style="padding: 12px 16px; border-radius: 10px; margin-bottom: 14px; display: none; font-size: 13.5px; font-weight: 600;"></div>
-          <p style="color: var(--muted); font-size: 13px; margin: 0 0 6px;">Consumo atual em relação ao teto:</p>
+          <p style="color: var(--muted); font-size: 13px; margin: 0 0 6px;">Nível de proximidade do limite crítico (700):</p>
           <div style="font-size: 32px; font-weight: 800; letter-spacing: -1px;" id="velocimetro-pct">0%</div>
-          <div style="font-size: 13.5px; color: var(--text); margin-top: 6px;" id="velocimetro-detalhe">Despesas pagas: R$ 0,00 / R$ 700,00</div>
+          <div style="font-size: 13.5px; color: var(--text); margin-top: 6px;" id="velocimetro-detalhe">Saldo atual: R$ 0,00 (Mínimo: R$ 700,00)</div>
         </div>
         <div style="width: 240px; height: 130px; position: relative;">
           <canvas id="gaugeChart"></canvas>
@@ -1152,26 +1138,32 @@ let catChartInstance = null;
 let monthChartInstance = null;
 let gaugeChartInstance = null;
 
-function renderVelocimetro(despesasPagas) {
-  const limite = 700;
-  const pctDisplay = ((despesasPagas / limite) * 100).toFixed(1);
+function renderVelocimetro(saldoAtual) {
+  const limiteMinimo = 700;
+  const faixaReferenciaSegura = 1400; // 0% de risco (longe do limite)
+  
+  // Quanto menor o saldo, mais perto de 100% (alerta)
+  // Saldo >= 1400 -> 0%
+  // Saldo <= 700 -> 100%
+  let pctRaw = ((faixaReferenciaSegura - saldoAtual) / (faixaReferenciaSegura - limiteMinimo)) * 100;
+  const pctDisplay = Math.max(0, Math.min(100, pctRaw)).toFixed(1);
   
   document.getElementById('velocimetro-pct').textContent = pctDisplay + '%';
-  document.getElementById('velocimetro-detalhe').textContent = `Despesas pagas: ${BRL(despesasPagas)} / ${BRL(limite)}`;
+  document.getElementById('velocimetro-detalhe').textContent = `Saldo atual: ${BRL(saldoAtual)} (Limite mínimo: R$ 700,00)`;
   
   const alertaBox = document.getElementById('alerta-limite-box');
-  if (despesasPagas >= limite) {
+  if (saldoAtual < limiteMinimo) {
     alertaBox.style.display = 'block';
     alertaBox.style.background = 'rgba(255, 69, 58, 0.2)';
     alertaBox.style.border = '1px solid var(--rose)';
     alertaBox.style.color = 'var(--rose)';
-    alertaBox.innerHTML = `⚠️ <b>ALERTA CRÍTICO:</b> Você atingiu ou ultrapassou o limite de R$ 700,00! (Total gasto: ${BRL(despesasPagas)})`;
-  } else if (despesasPagas >= limite * 0.8) {
+    alertaBox.innerHTML = `⚠️ <b>ALERTA CRÍTICO:</b> Seu saldo (${BRL(saldoAtual)}) está abaixo do limite mínimo de R$ 700,00!`;
+  } else if (saldoAtual <= limiteMinimo + 200) {
     alertaBox.style.display = 'block';
     alertaBox.style.background = 'rgba(255, 159, 10, 0.2)';
     alertaBox.style.border = '1px solid var(--amber)';
     alertaBox.style.color = 'var(--amber)';
-    alertaBox.innerHTML = `⚡ <b>ATENÇÃO:</b> Você está próximo de atingir o limite de R$ 700,00 (${pctDisplay}% utilizado).`;
+    alertaBox.innerHTML = `⚡ <b>ATENÇÃO:</b> Seu saldo (${BRL(saldoAtual)}) está próximo do limite mínimo de R$ 700,00.`;
   } else {
     alertaBox.style.display = 'none';
   }
@@ -1180,16 +1172,17 @@ function renderVelocimetro(despesasPagas) {
   if (gaugeChartInstance) gaugeChartInstance.destroy();
   const ctx = document.getElementById('gaugeChart').getContext('2d');
   
-  const restante = Math.max(0, limite - despesasPagas);
-  const valorGrafico = Math.min(despesasPagas, limite);
-  const corBarra = despesasPagas >= limite ? '#FF453A' : (despesasPagas >= limite * 0.8 ? '#FF9F0A' : '#30D158');
+  // Visualização do gráfico baseada na proximidade do risco
+  const valorRisco = Math.min(100, Math.max(0, pctRaw));
+  const valorSeguro = 100 - valorRisco;
+  const corBarra = saldoAtual < limiteMinimo ? '#FF453A' : (saldoAtual <= limiteMinimo + 200 ? '#FF9F0A' : '#30D158');
 
   gaugeChartInstance = new Chart(ctx, {
     type: 'doughnut',
     data: {
-      labels: ['Gastos', 'Restante'],
+      labels: ['Risco de Alerta', 'Margem Segura'],
       datasets: [{
-        data: [valorGrafico, restante],
+        data: [valorRisco, valorSeguro],
         backgroundColor: [corBarra, 'rgba(255,255,255,0.06)'],
         borderWidth: 0
       }]
@@ -1204,7 +1197,7 @@ function renderVelocimetro(despesasPagas) {
         tooltip: {
           callbacks: {
             label: function(context) {
-              return context.label + ': ' + BRL(context.raw);
+              return context.label + ': ' + context.raw.toFixed(1) + '%';
             }
           }
         }
@@ -1232,11 +1225,11 @@ function renderDashboard(){
   
   const saldoEl = document.getElementById('kpi-saldo');
   saldoEl.textContent = BRL(saldo);
-  saldoEl.className = `kpi-value num ${saldo<0?'neg':''}`;
+  saldoEl.className = `kpi-value num ${saldo<700?'neg':''}`;
   document.getElementById('kpi-taxa').textContent = taxa.toFixed(1) + '%';
 
-  // Renderizar Velocímetro de Limite (R$ 700)
-  renderVelocimetro(des);
+  // Renderizar Velocímetro de Saldo Mínimo (R$ 700)
+  renderVelocimetro(saldo);
 
   const catSums = {};
   CATS_DESPESA.forEach(c => catSums[c] = 0);
